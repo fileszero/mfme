@@ -1,0 +1,5 @@
+/driver/*
+*.log
+/me.json
+__pycache__/*
+pandas/*

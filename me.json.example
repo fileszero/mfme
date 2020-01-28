@@ -1,0 +1,6 @@
+{
+    "mail": "",
+    "password": "",
+    "workdir":"C:\\temp\\me",
+    "dbfile":"C:\\temp\\medb.sqlite"
+}
