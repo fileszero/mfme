@@ -3,4 +3,10 @@
     "password": "",
     "workdir":"C:\\temp\\me",
     "dbfile":"C:\\temp\\medb.sqlite"
+    "gmail":{
+        "mail":"mail@gmail.com",
+        "password": "password",
+        "to":"mail@example.com,mail2@example.com",
+        "bcc":"mail@example.com,mail2@example.com"
+    }
 }
