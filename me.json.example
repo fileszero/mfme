@@ -3,7 +3,8 @@
     "dbfile":"C:\\temp\\medb.sqlite"
     "mfme":{
         "mail": "",
-        "password": ""
+        "password": "",
+        "reportAccount":["Amazon.co.jp", "個人財布"]
     },
     "gmail":{
         "mail":"mail@gmail.com",
