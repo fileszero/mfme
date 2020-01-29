@@ -20,15 +20,14 @@ import pandas as pd  # pip install pandas
 
 me_config = mylib.get_config()
 
-os.makedirs(me_config["workdir"],exist_ok=True)
+os.makedirs(me_config["workdir"], exist_ok=True)
 
 mfme = mfme_client.mfme_client(me_config)
 # mfme.updateLatestCSV()
 
 conn = sqlite3.connect(me_config["dbfile"])
 cur = conn.cursor()
-# personsというtableを作成してみる
-# 大文字部はSQL文。小文字でも問題ない。
+
 cur.execute(
     """CREATE TABLE IF NOT EXISTS IncomeOutgo (
         IsTarget INTEGER,
@@ -58,15 +57,15 @@ for f in files:
 
 df = pd.read_sql(
     "select * from IncomeOutgo "
-    + "WHERE IsTarget=1 AND IsTransfer=0"
-    , conn)
+    + "WHERE IsTarget=1 AND IsTransfer=0", conn)
 
 # https: // note.nkmk.me/python-pandas-datetime-timestamp/
 print(pd.to_datetime(df["Date"]))
-df["Date"]=pd.to_datetime(df["Date"])
+df["Date"] = pd.to_datetime(df["Date"])
 df['Year'] = df["Date"].dt.year
 df['Month'] = df["Date"].dt.month
-pt = pd.pivot_table(df, index=["Account", "Detail"], columns=["Year","Month"], aggfunc='sum', values="Amount",fill_value="")
+pt = pd.pivot_table(df, index=["Account", "Detail"], columns=[
+                    "Year", "Month"], aggfunc='sum', values="Amount", fill_value="")
 pt.sort_values(by=["Account", "Detail"], inplace=True)
 pd.set_option('display.max_rows', None)
 print(pt.to_html())

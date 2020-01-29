@@ -16,3 +16,8 @@ pip install selenium
 ```
 pip install pandas
 ```
+
+### slack
+```
+pip install slackclient
+```

@@ -8,5 +8,8 @@
         "password": "password",
         "to":"mail@example.com,mail2@example.com",
         "bcc":"mail@example.com,mail2@example.com"
+    },
+    "slack":{
+        "token":"xoxox"
     }
 }
