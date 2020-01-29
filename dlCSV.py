@@ -22,7 +22,7 @@ me_config = mylib.get_config()
 
 os.makedirs(me_config["workdir"], exist_ok=True)
 
-mfme = mfme_client.mfme_client(me_config)
+mfme = mfme_client.mfme_client(me_config["mfme"])
 # mfme.updateLatestCSV()
 
 conn = sqlite3.connect(me_config["dbfile"])
@@ -42,7 +42,7 @@ cur.execute(
         MFId TEXT PRIMARY KEY
      ) """)
 
-files = glob.glob(os.path.join(mfme.workdir, "*.csv"))
+files = glob.glob(os.path.join(me_config["workdir"], "*.csv"))
 print(files)
 for f in files:
     df = pd.read_csv(f, encoding="SHIFT-JIS")
@@ -68,6 +68,10 @@ pt = pd.pivot_table(df, index=["Account", "Detail"], columns=[
                     "Year", "Month"], aggfunc='sum', values="Amount", fill_value="")
 pt.sort_values(by=["Account", "Detail"], inplace=True)
 pd.set_option('display.max_rows', None)
-print(pt.to_html())
+
+html = pt.to_html()
+filename = os.path.join(me_config["workdir"], "report.html")
+with open(filename, mode="w", encoding='utf-8') as f:
+    f.write(html)
 conn.close()
 # browser.close()

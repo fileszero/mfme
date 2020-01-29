@@ -15,17 +15,18 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import sqlite3
 
+
 class mfme_client:
     _browser = None
+
     def __init__(self, config):
-        self.workdir = config["workdir"]
         self.email = config["mail"]
-        self.password=config["password"]
+        self.password = config["password"]
 
     def browser(self) -> webdriver:
         if not self._browser:
             self._browser = webdriver.Firefox(executable_path=mylib.get_ff_executable_path(
-                ), firefox_profile=mylib.get_ff_profile(self.workdir))
+            ), firefox_profile=mylib.get_ff_profile())
         return self._browser
 
     def login(self):
@@ -52,7 +53,7 @@ class mfme_client:
     def gotoYearMonth(self, year: int, month: int):
         # 家計簿
         self.browser().get("https://moneyforward.com/cf")
-        #月を選択
+        # 月を選択
         self.clickByXPath("//*[contains(text(), '月を選択')]")
 
         try:
@@ -78,7 +79,7 @@ class mfme_client:
         self.browser().get(
             f"https://moneyforward.com/cf/csv?from={year}%2F{month}%2F01")
 
-    ## main
+    # main
 
     def updateLatestCSV(self):
         self.login()
@@ -88,5 +89,3 @@ class mfme_client:
             self.gotoYearMonth(curdate.year, curdate.month)
             self.downloadCSV()
             # getCSV(curdate.year, curdate.month)
-
-

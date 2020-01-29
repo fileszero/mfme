@@ -1,8 +1,10 @@
 {
-    "mail": "",
-    "password": "",
     "workdir":"C:\\temp\\me",
     "dbfile":"C:\\temp\\medb.sqlite"
+    "mfme":{
+        "mail": "",
+        "password": ""
+    },
     "gmail":{
         "mail":"mail@gmail.com",
         "password": "password",
