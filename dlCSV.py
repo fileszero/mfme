@@ -4,6 +4,8 @@
 # Simple assignment
 import os
 import json
+import slack
+
 from datetime import date
 from datetime import datetime
 
@@ -103,7 +105,14 @@ msg += '今月の使用確定額は {:,.0f}円 です。\n\n'.format(abs(thismon
 msg += '今月の予想使用額は {:,.0f}円 です。\n'.format(abs(thismonth_expect))
 msg += '先月は {:,.0f} 円 でした。\n'.format(abs(lastmonth_sum))
 msg += '過去1年間の平均は {:,.0f} 円 でした。\n'.format(abs(last_one_year_mean))
+
 print(msg)
+# https://api.slack.com/apps OAuth & Permissions
+client = slack.WebClient(me_config["slack"]["token"])
+
+response = client.chat_postMessage(
+    channel=me_config["slack"]["channel"],
+    text=msg)
 
 # pt = pd.pivot_table(df, index=["Account", "Detail"], columns=[
 #     "Year", "Month"], aggfunc='sum', values="Amount", fill_value="")

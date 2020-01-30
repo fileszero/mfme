@@ -13,6 +13,7 @@
         "bcc":"mail@example.com,mail2@example.com"
     },
     "slack":{
-        "token":"xoxox"
+        "token":"xoxox",
+        "channel": "#random"
     }
 }
