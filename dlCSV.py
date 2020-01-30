@@ -101,10 +101,10 @@ last_one_year_mean = last_one_year.groupby(
 
 msg = "{year}年{month}月{day}日\n\n".format(
     year=date.today().year, month=date.today().month, day=date.today().day)
-msg += '今月の使用確定額は {:,.0f}円 です。\n\n'.format(abs(thismonth_sum))
-msg += '今月の予想使用額は {:,.0f}円 です。\n'.format(abs(thismonth_expect))
-msg += '先月は {:,.0f} 円 でした。\n'.format(abs(lastmonth_sum))
-msg += '過去1年間の平均は {:,.0f} 円 でした。\n'.format(abs(last_one_year_mean))
+msg += '今月の確定額は {:>9,.0f} 円 です。\n\n'.format(abs(thismonth_sum))
+msg += '今月の予想額は {:>9,.0f} 円 です。\n'.format(abs(thismonth_expect))
+msg += '先月の確定額は {:>9,.0f} 円 でした。\n'.format(abs(lastmonth_sum))
+msg += '１年間の平均は {:>9,.0f} 円/月 です。\n'.format(abs(last_one_year_mean))
 
 print(msg)
 # https://api.slack.com/apps OAuth & Permissions
