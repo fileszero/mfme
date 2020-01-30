@@ -45,7 +45,7 @@ cur.execute(
      ) """)
 
 files = glob.glob(os.path.join(me_config["workdir"], "*.csv"))
-print(files)
+# print(files)
 for f in files:
     df = pd.read_csv(f, encoding="SHIFT-JIS")
     df.to_sql("import_work", conn, if_exists="replace")
@@ -59,7 +59,7 @@ for f in files:
     os.remove(f)
 
 basedate = datetime.combine(date.today().replace(day=1), datetime.min.time())
-print(basedate)
+# print(basedate)
 
 datefrom = basedate + relativedelta(months=-12)
 account_list = "'" + "','".join(me_config["mfme"]["reportAccount"]) + "'"
@@ -81,30 +81,43 @@ pd.set_option('display.max_rows', None)
 
 start_of_nextmonth = basedate + relativedelta(months=1)
 thismonth = df[(basedate <= df['Date']) & (df['Date'] < start_of_nextmonth)]
-print(thismonth)
+thismonth_sum = thismonth["Amount"].sum()
+thismonth_expect = (thismonth_sum/date.today().day) * \
+    mylib.get_end_of_month(basedate).day
+# print(thismonth)
 
 start_of_lastmonth = basedate + relativedelta(months=-1)
 lastmonth = df[(start_of_lastmonth <= df['Date']) & (df['Date'] < basedate)]
-print(lastmonth)
+lastmonth_sum = lastmonth["Amount"].sum()
+# print(lastmonth)
 
 start_of_lastyear = basedate + relativedelta(years=-1)
-print(start_of_lastyear)
+# print(start_of_lastyear)
 last_one_year = df[(start_of_lastyear <= df['Date']) & (df['Date'] < basedate)]
-print(last_one_year)
+last_one_year_mean = last_one_year.groupby(
+    ['Year', 'Month']).sum()["Amount"].mean()
 
-pt = pd.pivot_table(df, index=["Account", "Detail"], columns=[
-    "Year", "Month"], aggfunc='sum', values="Amount", fill_value="")
-pt.sort_values(by=["Account", "Detail"], inplace=True)
+msg = "{year}年{month}月{day}日\n\n".format(
+    year=date.today().year, month=date.today().month, day=date.today().day)
+msg += '今月の使用確定額は {:,.0f}円 です。\n\n'.format(abs(thismonth_sum))
+msg += '今月の予想使用額は {:,.0f}円 です。\n'.format(abs(thismonth_expect))
+msg += '先月は {:,.0f} 円 でした。\n'.format(abs(lastmonth_sum))
+msg += '過去1年間の平均は {:,.0f} 円 でした。\n'.format(abs(last_one_year_mean))
+print(msg)
 
-# print(pt)
-html = pt.to_html()
-filename = os.path.join(me_config["workdir"], "report.html")
-with open(filename, mode="w", encoding='utf-8') as f:
-    f.write(html)
+# pt = pd.pivot_table(df, index=["Account", "Detail"], columns=[
+#     "Year", "Month"], aggfunc='sum', values="Amount", fill_value="")
+# pt.sort_values(by=["Account", "Detail"], inplace=True)
 
-ct = pd.crosstab(index=[df["Account"], df["Detail"]], columns=[
-    df["Year"], df["Month"]], values=df["Amount"], aggfunc='sum')
-# print(ct)
-# print(ct.columns)
-# print(ct[ct["Year"] == 2020])
-# browser.close()
+# # print(pt)
+# html = pt.to_html()
+# filename = os.path.join(me_config["workdir"], "report.html")
+# with open(filename, mode="w", encoding='utf-8') as f:
+#     f.write(html)
+
+# ct = pd.crosstab(index=[df["Account"], df["Detail"]], columns=[
+#     df["Year"], df["Month"]], values=df["Amount"], aggfunc='sum')
+# # print(ct)
+# # print(ct.columns)
+# # print(ct[ct["Year"] == 2020])
+# # browser.close()

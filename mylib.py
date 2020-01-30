@@ -3,6 +3,9 @@
 import os
 import sys
 import json
+from datetime import date
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 from selenium import webdriver
 
@@ -72,3 +75,8 @@ def get_ff_profile() -> webdriver.FirefoxProfile:
     profile.set_preference("pdfjs.disabled", True)
 
     return profile
+
+
+def get_end_of_month(cur: date) -> date:
+    som = cur.replace(day=1) + relativedelta(months=1) + relativedelta(days=-1)
+    return som
