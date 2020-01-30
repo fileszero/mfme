@@ -85,10 +85,10 @@ class mfme_client:
 
     # main
 
-    def updateLatestCSV(self):
+    def updateLatestCSV(self, months: int = 3):
         self.login()
         basedate = datetime.datetime.now().replace(day=1)
-        for m in range(3):
+        for m in range(months):
             curdate = basedate + relativedelta(months=-m)
             print(curdate)
             self.gotoYearMonth(curdate.year, curdate.month)

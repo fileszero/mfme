@@ -27,7 +27,7 @@ me_config = mylib.get_config()
 os.makedirs(me_config["workdir"], exist_ok=True)
 
 mfme = mfme_client.mfme_client(me_config["mfme"])
-# mfme.updateLatestCSV()
+mfme.updateLatestCSV()
 
 conn = sqlite3.connect(me_config["dbfile"])
 cur = conn.cursor()
