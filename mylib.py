@@ -18,7 +18,7 @@ def get_ffprofile_path(profile):
     # ffprofile=webdriver.FirefoxProfile(os.path.join(os.environ['APPDATA'],"Mozilla","firefox","profiles","t0nhkhax.default"))
     FF_PROFILE_PATH = os.path.join(
         os.environ['APPDATA'], 'Mozilla', 'Firefox', 'Profiles')
-
+    # /home/<username>/.mozilla/firefox/xxxxxxxx.default
     try:
         profiles = os.listdir(FF_PROFILE_PATH)
     except WindowsError:

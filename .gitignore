@@ -3,3 +3,4 @@
 /me.json
 __pycache__/*
 pandas/*
+vm/.vagrant/*
