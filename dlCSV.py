@@ -4,7 +4,9 @@
 # Simple assignment
 import os
 import json
-import datetime
+from datetime import date
+from datetime import datetime
+
 from dateutil.relativedelta import relativedelta
 import mylib
 from selenium import webdriver
@@ -53,28 +55,48 @@ for f in files:
         FROM import_work WHERE "ID" NOT IN (SELECT MFId FROM IncomeOutgo)
     """
     cur.execute(insetrt_sql)
+    conn.commit()
     os.remove(f)
 
-basedate = datetime.datetime.now().replace(day=1)
-datefrom = basedate + relativedelta(months=-2)
+basedate = datetime.combine(date.today().replace(day=1), datetime.min.time())
+print(basedate)
+
+datefrom = basedate + relativedelta(months=-12)
 account_list = "'" + "','".join(me_config["mfme"]["reportAccount"]) + "'"
 sql = ("select * from IncomeOutgo "
        + "WHERE IsTarget=1 AND IsTransfer=0 AND Date>='" +
        datefrom.strftime("%Y/%m/%d") + "'"
-       + "And Account in (" +account_list+ ")")
-print(sql)
+       + "And Account in (" + account_list + ")")
+# print(sql)
 df = pd.read_sql(sql, conn)
+conn.close()
 
 # https: // note.nkmk.me/python-pandas-datetime-timestamp/
 # print(pd.to_datetime(df["Date"]))
 df["Date"] = pd.to_datetime(df["Date"])
 df['Year'] = df["Date"].dt.year
 df['Month'] = df["Date"].dt.month
-pt = pd.pivot_table(df, index=["Account", "Detail"], columns=[
-                    "Year", "Month"], aggfunc='sum', values="Amount", fill_value="")
-pt.sort_values(by=["Account", "Detail"], inplace=True)
-# pd.set_option('display.max_rows', None)
 
+pd.set_option('display.max_rows', None)
+
+start_of_nextmonth = basedate + relativedelta(months=1)
+thismonth = df[(basedate <= df['Date']) & (df['Date'] < start_of_nextmonth)]
+print(thismonth)
+
+start_of_lastmonth = basedate + relativedelta(months=-1)
+lastmonth = df[(start_of_lastmonth <= df['Date']) & (df['Date'] < basedate)]
+print(lastmonth)
+
+start_of_lastyear = basedate + relativedelta(years=-1)
+print(start_of_lastyear)
+last_one_year = df[(start_of_lastyear <= df['Date']) & (df['Date'] < basedate)]
+print(last_one_year)
+
+pt = pd.pivot_table(df, index=["Account", "Detail"], columns=[
+    "Year", "Month"], aggfunc='sum', values="Amount", fill_value="")
+pt.sort_values(by=["Account", "Detail"], inplace=True)
+
+# print(pt)
 html = pt.to_html()
 filename = os.path.join(me_config["workdir"], "report.html")
 with open(filename, mode="w", encoding='utf-8') as f:
@@ -82,8 +104,7 @@ with open(filename, mode="w", encoding='utf-8') as f:
 
 ct = pd.crosstab(index=[df["Account"], df["Detail"]], columns=[
     df["Year"], df["Month"]], values=df["Amount"], aggfunc='sum')
-print(ct)
-print(ct.columns)
+# print(ct)
+# print(ct.columns)
 # print(ct[ct["Year"] == 2020])
-conn.close()
 # browser.close()

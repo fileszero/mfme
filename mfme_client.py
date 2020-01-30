@@ -23,6 +23,10 @@ class mfme_client:
         self.email = config["mail"]
         self.password = config["password"]
 
+    def __del__(self):
+        if self._browser:
+            self._browser.close()
+
     def browser(self) -> webdriver:
         if not self._browser:
             self._browser = webdriver.Firefox(executable_path=mylib.get_ff_executable_path(
@@ -86,6 +90,7 @@ class mfme_client:
         basedate = datetime.datetime.now().replace(day=1)
         for m in range(3):
             curdate = basedate + relativedelta(months=-m)
+            print(curdate)
             self.gotoYearMonth(curdate.year, curdate.month)
             self.downloadCSV()
             # getCSV(curdate.year, curdate.month)
