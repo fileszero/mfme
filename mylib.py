@@ -6,7 +6,7 @@ import json
 from datetime import date
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-
+import platform
 from selenium import webdriver
 
 _me_config = None
@@ -14,11 +14,24 @@ _me_config = None
 # https://selenium-python.readthedocs.io/api.html#module-selenium.webdriver.firefox.firefox_profile
 
 
+def get_ffdriver_filename():
+    if platform.system() == 'Linux':
+        return 'geckodriver'
+    return 'geckodriver.exe'
+
+
 def get_ffprofile_path(profile):
     # ffprofile=webdriver.FirefoxProfile(os.path.join(os.environ['APPDATA'],"Mozilla","firefox","profiles","t0nhkhax.default"))
-    FF_PROFILE_PATH = os.path.join(
-        os.environ['APPDATA'], 'Mozilla', 'Firefox', 'Profiles')
-    # /home/<username>/.mozilla/firefox/xxxxxxxx.default
+    if(os.environ.get('APPDATA')):
+        FF_PROFILE_PATH = os.path.join(
+            os.environ['APPDATA'], 'Mozilla', 'Firefox', 'Profiles')
+    if platform.system() == 'Linux':
+        if(os.environ.get('HOME')):
+            # /home/<username>/.mozilla/firefox/xxxxxxxx.default
+            FF_PROFILE_PATH = os.path.join(
+                os.environ['HOME'], '.mozilla', 'firefox')
+
+    loc = None
     try:
         profiles = os.listdir(FF_PROFILE_PATH)
     except WindowsError:
@@ -32,7 +45,11 @@ def get_ffprofile_path(profile):
     except StopIteration:
         print("Firefox profile not found.")
         sys.exit(1)
-    return os.path.join(FF_PROFILE_PATH, loc)
+    path = None
+    if loc:
+        path = os.path.join(FF_PROFILE_PATH, loc)
+    print(path)
+    return path
 
 
 def get_config():

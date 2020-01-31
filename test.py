@@ -1,5 +1,10 @@
+# -*- coding: utf-8 -*-
+
 import datetime
 from dateutil.relativedelta import relativedelta
+
+import test_mod1
+import test_mod1_1
 
 basedate = datetime.datetime.now().replace(day=1)
 for m in range(3):

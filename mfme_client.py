@@ -14,10 +14,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import sqlite3
+from pyvirtualdisplay import Display
+import platform
 
 
 class mfme_client:
     _browser = None
+    _display = None
 
     def __init__(self, config):
         self.email = config["mail"]
@@ -26,8 +29,13 @@ class mfme_client:
     def __del__(self):
         if self._browser:
             self._browser.close()
+        if self._display:
+            self._display.stop()
 
     def browser(self) -> webdriver:
+        if platform.system() == 'Linux':
+            self._display = Display(visible=0, size=(800, 600))
+            self._display.start()
         if not self._browser:
             self._browser = webdriver.Firefox(executable_path=mylib.get_ff_executable_path(
             ), firefox_profile=mylib.get_ff_profile())
