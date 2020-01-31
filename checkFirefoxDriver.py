@@ -21,7 +21,7 @@ driver = webdriver.Firefox(executable_path=os.path.join(
     script_dir, "driver", mylib.get_ffdriver_filename()), firefox_profile=ffprofile)
 
 driver.get("https://www.yahoo.co.jp")
-
+driver.save_screenshot("python_ss.png")
 driver.close()
 driver.quit()
 
