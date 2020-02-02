@@ -111,7 +111,7 @@ msg += '今月の予想額は {:>9,.0f} 円 です。\n'.format(abs(thismonth_ex
 msg += '先月の確定額は {:>9,.0f} 円 でした。\n'.format(abs(lastmonth_sum))
 msg += '１年間の平均は {:>9,.0f} 円/月 です。\n'.format(abs(last_one_year_mean))
 
-print(msg)
+# print(msg)
 # https://api.slack.com/apps OAuth & Permissions
 client = slack.WebClient(me_config["slack"]["token"])
 
