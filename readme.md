@@ -70,3 +70,9 @@ pip3 install pandas
 ```
 pip3 install slackclient
 ```
+
+### cron sample
+毎週月曜と金曜の9:15分に実行
+```
+15 9 * * 1,5 user /usr/local/bin/python3.8 /home/user/apps/mfme/dlCSV.py
+```

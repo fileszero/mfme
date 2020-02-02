@@ -96,14 +96,18 @@ class mfme_client:
     # main
 
     def updateLatestCSV(self, months: int = 3):
-        self.login()
-        basedate = datetime.datetime.now().replace(day=1)
-        for m in range(months):
-            curdate = basedate + relativedelta(months=-m)
-            print(curdate)
-            self.gotoYearMonth(curdate.year, curdate.month)
-            self.downloadCSV()
-            # getCSV(curdate.year, curdate.month)
+        try:
+            self.login()
+            basedate = datetime.datetime.now().replace(day=1)
+            for m in range(months):
+                curdate = basedate + relativedelta(months=-m)
+                print(curdate)
+                self.gotoYearMonth(curdate.year, curdate.month)
+                self.downloadCSV()
+                # getCSV(curdate.year, curdate.month)
+        except:
+            if self._browser:
+                self._browser.save_screenshot("ss_updateLatestCSV.png")
 
     def MFAVerify(self,url):
         self.login()
