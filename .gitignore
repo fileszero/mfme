@@ -4,3 +4,5 @@
 __pycache__/*
 pandas/*
 vm/.vagrant/*
+ss_*.png
+

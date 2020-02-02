@@ -30,12 +30,14 @@ class mfme_client:
         if self._browser:
             self._browser.close()
         if self._display:
+            self._display.sendstop()
             self._display.stop()
 
     def browser(self) -> webdriver:
         if platform.system() == 'Linux':
-            self._display = Display(visible=0, size=(800, 600))
-            self._display.start()
+            if not self._display:
+                self._display = Display(visible=0, size=(800, 600))
+                self._display.start()
         if not self._browser:
             self._browser = webdriver.Firefox(executable_path=mylib.get_ff_executable_path(
             ), firefox_profile=mylib.get_ff_profile())
@@ -94,11 +96,19 @@ class mfme_client:
     # main
 
     def updateLatestCSV(self, months: int = 3):
+        try:
+            self.login()
+            basedate = datetime.datetime.now().replace(day=1)
+            for m in range(months):
+                curdate = basedate + relativedelta(months=-m)
+                print(curdate)
+                self.gotoYearMonth(curdate.year, curdate.month)
+                self.downloadCSV()
+                # getCSV(curdate.year, curdate.month)
+        except:
+            if self._browser:
+                self._browser.save_screenshot("ss_updateLatestCSV.png")
+
+    def MFAVerify(self,url):
         self.login()
-        basedate = datetime.datetime.now().replace(day=1)
-        for m in range(months):
-            curdate = basedate + relativedelta(months=-m)
-            print(curdate)
-            self.gotoYearMonth(curdate.year, curdate.month)
-            self.downloadCSV()
-            # getCSV(curdate.year, curdate.month)
+        self.browser().get(url)

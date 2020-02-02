@@ -64,7 +64,7 @@ def get_config():
 
 def get_ff_executable_path():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(script_dir, "driver", "geckodriver.exe")
+    return os.path.join(script_dir, "driver", get_ffdriver_filename())
 
 
 def get_ff_profile() -> webdriver.FirefoxProfile:
