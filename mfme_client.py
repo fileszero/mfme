@@ -102,3 +102,7 @@ class mfme_client:
             self.gotoYearMonth(curdate.year, curdate.month)
             self.downloadCSV()
             # getCSV(curdate.year, curdate.month)
+
+    def MFAVerify(self,url):
+        self.login()
+        self.browser().get(url)
