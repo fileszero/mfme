@@ -35,8 +35,9 @@ class mfme_client:
 
     def browser(self) -> webdriver:
         if platform.system() == 'Linux':
-            self._display = Display(visible=0, size=(800, 600))
-            self._display.start()
+            if not self._display:
+                self._display = Display(visible=0, size=(800, 600))
+                self._display.start()
         if not self._browser:
             self._browser = webdriver.Firefox(executable_path=mylib.get_ff_executable_path(
             ), firefox_profile=mylib.get_ff_profile())
