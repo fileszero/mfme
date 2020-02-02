@@ -20,7 +20,12 @@ ffprofile = webdriver.FirefoxProfile(mylib.get_ffprofile_path("default"))
 driver = webdriver.Firefox(executable_path=os.path.join(
     script_dir, "driver", mylib.get_ffdriver_filename()), firefox_profile=ffprofile)
 
-driver.get("https://www.yahoo.co.jp")
+url="https://www.yahoo.co.jp"
+if len(sys.argv) == 2:
+    url = sys.argv[1]
+
+driver.get(url)
+driver.save_screenshot("ss_checkFirefoxDriver.png")
 
 driver.close()
 driver.quit()
