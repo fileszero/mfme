@@ -30,6 +30,7 @@ class mfme_client:
         if self._browser:
             self._browser.close()
         if self._display:
+            self._display.sendstop()
             self._display.stop()
 
     def browser(self) -> webdriver:
