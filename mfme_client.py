@@ -117,9 +117,12 @@ class mfme_client:
         try:
             self.login()
             self.browser().get("https://moneyforward.com/bs/history")
+            self.browser().execute_script(
+                'window.document.getElementById("floating-feedback-box").style.display="none";')
             self.clickByXPath("//i[@class='icon-download-alt']")
             self.clickByXPath("//a[@href='/bs/history/csv']")
-        except:
+        except Exception as e:
+            print(e)
             if self._browser:
                 self._browser.save_screenshot("ss_updateBSHistoryCSV.png")
 

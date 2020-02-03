@@ -42,6 +42,7 @@ def updateIncomeOutgo(mfme: mfme_client, conn: sqlite3.Connection):
     files = glob.glob(os.path.join(me_config["workdir"], "収入・支出詳細*.csv"))
     # print(files)
     for f in files:
+        print(f)
         df = pd.read_csv(f, encoding="SHIFT-JIS")
         df.to_sql("import_work", conn, if_exists="replace")
         insetrt_sql = """
@@ -69,6 +70,7 @@ def updateBSHistory(mfme: mfme_client, conn: sqlite3.Connection):
     files = glob.glob(os.path.join(me_config["workdir"], "資産推移月次.csv"))
     # print(files)
     for f in files:
+        print(f)
         df = pd.read_csv(f, encoding="SHIFT-JIS")
         df.to_sql("import_work_bshist", conn, if_exists="replace")
         delete_sql = """
