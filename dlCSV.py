@@ -160,7 +160,7 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     msg += ( "\n" + fdate(oldest_bs.iloc[0]["Date"])
             + "の資産は {:>10,.0f} 円 でした。\n".format(oldest_bs.iloc[0]["Total"]))
     msg += (fdate(latest_bs.iloc[0]["Date"])
-            + "日の資産は {:>10,.0f} 円 です\n".format(latest_bs.iloc[0]["Total"]))
+            + "の資産は {:>10,.0f} 円 です\n".format(latest_bs.iloc[0]["Total"]))
 
     # x = df["Days"]
     # y = df["Total"]
