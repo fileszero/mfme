@@ -45,6 +45,10 @@ class mfme_client:
 
     def login(self):
         self.browser().get("https://moneyforward.com/users/sign_in")
+        already_login = self.browser().find_elements_by_xpath(
+            "//div[contains(@class,'alert-success')][contains(text(), '既にログインしています')]")
+        if len(already_login) != 0:
+            return
         # メールアドレスを入力
         e = self.browser().find_element_by_id("sign_in_session_service_email")
         e.clear()
@@ -109,6 +113,16 @@ class mfme_client:
             if self._browser:
                 self._browser.save_screenshot("ss_updateLatestCSV.png")
 
-    def MFAVerify(self,url):
+    def updateBSHistoryCSV(self):
+        try:
+            self.login()
+            self.browser().get("https://moneyforward.com/bs/history")
+            self.clickByXPath("//i[@class='icon-download-alt']")
+            self.clickByXPath("//a[@href='/bs/history/csv']")
+        except:
+            if self._browser:
+                self._browser.save_screenshot("ss_updateBSHistoryCSV.png")
+
+    def MFAVerify(self, url):
         self.login()
         self.browser().get(url)
