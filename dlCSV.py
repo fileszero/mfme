@@ -152,8 +152,8 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     msg += "{0:%Y}年{0:%m}月{0:%d}日の資産は {1:>10,.0f} 円 です\n".format(
         latest_bs.iloc[0]["Date"], latest_bs.iloc[0]["Total"])
 
-    x = df["Days"]
-    y = df["Total"]
+    # x = df["Days"]
+    # y = df["Total"]
 
     # nparray = df.values()
     X = df["Days"].values
@@ -198,9 +198,9 @@ if len(sys.argv) == 2:
         mfme.MFAVerify(sys.argv[1])
 
 conn = sqlite3.connect(me_config["dbfile"])
-# updateIncomeOutgo(mfme, conn)
-# updateBSHistory(mfme, conn)
+updateIncomeOutgo(mfme, conn)
+updateBSHistory(mfme, conn)
 msg = makeReportMessage(conn)
 print(msg)
-# sendSlackMessage(msg)
+sendSlackMessage(msg)
 conn.close()
