@@ -17,6 +17,7 @@ import sqlite3
 import mfme_client
 
 import glob
+import numpy
 import pandas as pd  # pip install pandas
 import matplotlib.pyplot as plt
 from sklearn import linear_model
@@ -88,6 +89,11 @@ def updateBSHistory(mfme: mfme_client, conn: sqlite3.Connection):
         os.remove(f)
     cur.close()
 
+def fdate(d: datetime):
+    if isinstance(d, numpy.datetime64):
+        d = pd.Timestamp(d).to_pydatetime()
+
+    return "{0:%Y}年{0:%m}月{0:%d}日".format(d)
 
 def makeReportMessage(conn: sqlite3.Connection) -> str:
     basedate = datetime.combine(
@@ -132,7 +138,7 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     last_one_year_mean = last_one_year.groupby(
         ['Year', 'Month']).sum()["Amount"].mean()
 
-    msg = "{0:%Y}年{0:%m}月{0:%d}日\n\n".format(date.today())
+    msg = fdate(date.today())+"\n\n"
     msg += '今月の確定額は {:>9,.0f} 円 です。\n\n'.format(abs(thismonth_sum))
     msg += '今月の予想額は {:>9,.0f} 円 です。\n'.format(abs(thismonth_expect))
     msg += '先月の確定額は {:>9,.0f} 円 でした。\n'.format(abs(lastmonth_sum))
@@ -151,10 +157,10 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     oldest_bs = df[df['Date'] == df['Date'].min()]
     print(latest_bs)
     print(oldest_bs)
-    msg += "\n{0:%Y}年{0:%m}月{0:%d}日の資産は {1:>10,.0f} 円 でした。\n".format(
-        oldest_bs.iloc[0]["Date"], oldest_bs.iloc[0]["Total"])
-    msg += "{0:%Y}年{0:%m}月{0:%d}日の資産は {1:>10,.0f} 円 です\n".format(
-        latest_bs.iloc[0]["Date"], latest_bs.iloc[0]["Total"])
+    msg += ( "\n" + fdate(oldest_bs.iloc[0]["Date"])
+            + "の資産は {:>10,.0f} 円 でした。\n".format(oldest_bs.iloc[0]["Total"]))
+    msg += (fdate(latest_bs.iloc[0]["Date"])
+            + "日の資産は {:>10,.0f} 円 です\n".format(latest_bs.iloc[0]["Total"]))
 
     # x = df["Days"]
     # y = df["Total"]
