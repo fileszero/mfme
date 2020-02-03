@@ -157,8 +157,9 @@ if len(sys.argv) == 2:
         mfme.MFAVerify(sys.argv[1])
 
 conn = sqlite3.connect(me_config["dbfile"])
-updateIncomeOutgo(mfme, conn)
+# updateIncomeOutgo(mfme, conn)
 updateBSHistory(mfme, conn)
 msg = makeReportMessage(conn)
-sendSlackMessage(msg)
+print(msg)
+# sendSlackMessage(msg)
 conn.close()

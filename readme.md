@@ -74,5 +74,5 @@ pip3 install slackclient
 ### cron sample
 毎週月曜と金曜の9:15分に実行
 ```
-15 9 * * 1,5 user /usr/local/bin/python3.8 /home/user/apps/mfme/dlCSV.py
+15 9 * * 1,5 user LC_CTYPE="C.UTF-8" /usr/local/bin/python3.8 /home/user/apps/mfme/dlCSV.py
 ```

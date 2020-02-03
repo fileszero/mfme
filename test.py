@@ -19,3 +19,8 @@ print('[{:>9,.0f}]'.format(123456))
 print('[{:>9,.0f}]'.format(1234567))
 print('[{:>9,.0f}]'.format(12345678))
 print('[{:>9,.0f}]'.format(123456789.01))
+
+# UnicodeEncodeError: 'latin-1' codec can't encode characters in position 0-13: ordinal not in range(256)
+# LC_CTYPE="C.UTF-8" python3 test.py
+msg = '日本語プリントするとエラー？'
+print(msg)
