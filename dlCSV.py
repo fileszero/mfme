@@ -9,6 +9,7 @@ import sys
 
 from datetime import date
 from datetime import datetime
+from datetime import timedelta
 
 from dateutil.relativedelta import relativedelta
 import mylib
@@ -17,6 +18,8 @@ import mfme_client
 
 import glob
 import pandas as pd  # pip install pandas
+import matplotlib.pyplot as plt
+from sklearn import linear_model
 
 
 def updateIncomeOutgo(mfme: mfme_client, conn: sqlite3.Connection):
@@ -134,6 +137,39 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     msg += '先月の確定額は {:>9,.0f} 円 でした。\n'.format(abs(lastmonth_sum))
     msg += '１年間の平均は {:>9,.0f} 円/月 です。\n'.format(abs(last_one_year_mean))
 
+    # 資産推移
+    datefrom = basedate + relativedelta(months=-6)
+    sql = ("select * from BSHistory "
+           + "WHERE Date>='" +
+           datefrom.strftime("%Y/%m/%d") + "'"
+           )
+    df = pd.read_sql(sql, conn)
+    df["Date"] = pd.to_datetime(df["Date"])
+    df["Days"] = df["Date"].map(lambda x: (x-datefrom).days)
+    x = df["Days"]
+    y = df["Total"]
+
+    # nparray = df.values()
+    X = df["Days"].values
+    Y = df["Total"].values
+    X = X.reshape(len(X), 1)
+    Y = Y.reshape(len(Y), 1)
+    clf = linear_model.LinearRegression()
+    clf.fit(X, Y)
+    if (clf.coef_ < 0)[0][0]:
+        zero_day_diff = (clf.intercept_/clf.coef_)[0][0]
+        # plt.plot(-zero_day_diff, 0, marker='.')
+        zero_day = datefrom + timedelta(days=-zero_day_diff)
+
+        msg += "\n\nこのままだと {year}年{month}月{day}日 に破産します。\n".format(
+            year=zero_day.year, month=zero_day.month, day=zero_day.day)
+
+        print(zero_day)
+
+    # plt.scatter(x, y)
+    # plt.plot(X, clf.predict(X))
+    # plt.show()
+
     return msg
 
 
@@ -158,7 +194,7 @@ if len(sys.argv) == 2:
 
 conn = sqlite3.connect(me_config["dbfile"])
 # updateIncomeOutgo(mfme, conn)
-updateBSHistory(mfme, conn)
+# updateBSHistory(mfme, conn)
 msg = makeReportMessage(conn)
 print(msg)
 # sendSlackMessage(msg)

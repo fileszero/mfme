@@ -61,9 +61,11 @@ https://github.com/mozilla/geckodriver/releases
 ```
 pip3 install selenium
 ```
-### pandas
+### pandas 等
 ```
 pip3 install pandas
+pip3 install matplotlib
+pip3 install scikit-learn
 ```
 
 ### slack
