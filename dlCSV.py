@@ -149,6 +149,8 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     df["Days"] = df["Date"].map(lambda x: (x - datefrom).days)
     latest_bs = df[df['Date'] == df['Date'].max()]
     oldest_bs = df[df['Date'] == df['Date'].min()]
+    print(latest_bs)
+    print(oldest_bs)
     msg += "\n{0:%Y}年{0:%m}月{0:%d}日の資産は {1:>10,.0f} 円 でした。\n".format(
         oldest_bs.iloc[0]["Date"], oldest_bs.iloc[0]["Total"])
     msg += "{0:%Y}年{0:%m}月{0:%d}日の資産は {1:>10,.0f} 円 です\n".format(
