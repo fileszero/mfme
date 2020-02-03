@@ -130,8 +130,7 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     last_one_year_mean = last_one_year.groupby(
         ['Year', 'Month']).sum()["Amount"].mean()
 
-    msg = "{year}年{month}月{day}日\n\n".format(
-        year=date.today().year, month=date.today().month, day=date.today().day)
+    msg = "{0:%Y}年{0:%m}月{0:%d}日\n\n".format(date.today())
     msg += '今月の確定額は {:>9,.0f} 円 です。\n\n'.format(abs(thismonth_sum))
     msg += '今月の予想額は {:>9,.0f} 円 です。\n'.format(abs(thismonth_expect))
     msg += '先月の確定額は {:>9,.0f} 円 でした。\n'.format(abs(lastmonth_sum))
@@ -145,7 +144,14 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
            )
     df = pd.read_sql(sql, conn)
     df["Date"] = pd.to_datetime(df["Date"])
-    df["Days"] = df["Date"].map(lambda x: (x-datefrom).days)
+    df["Days"] = df["Date"].map(lambda x: (x - datefrom).days)
+    latest_bs = df[df['Date'] == df['Date'].max()]
+    oldest_bs = df[df['Date'] == df['Date'].min()]
+    msg += "\n{0:%Y}年{0:%m}月{0:%d}日の資産は {1:>10,.0f} 円 でした。\n".format(
+        oldest_bs.iloc[0]["Date"], oldest_bs.iloc[0]["Total"])
+    msg += "{0:%Y}年{0:%m}月{0:%d}日の資産は {1:>10,.0f} 円 です\n".format(
+        latest_bs.iloc[0]["Date"], latest_bs.iloc[0]["Total"])
+
     x = df["Days"]
     y = df["Total"]
 
@@ -156,13 +162,12 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     Y = Y.reshape(len(Y), 1)
     clf = linear_model.LinearRegression()
     clf.fit(X, Y)
+
     if (clf.coef_ < 0)[0][0]:
         zero_day_diff = (clf.intercept_/clf.coef_)[0][0]
         # plt.plot(-zero_day_diff, 0, marker='.')
         zero_day = datefrom + timedelta(days=-zero_day_diff)
-
-        msg += "\n\nこのままだと {year}年{month}月{day}日 に破産します。\n".format(
-            year=zero_day.year, month=zero_day.month, day=zero_day.day)
+        msg += "\nこのままだと {0:%Y}年{0:%m}月{0:%d}日 に破産します。\n".format(zero_day)
 
         print(zero_day)
 
