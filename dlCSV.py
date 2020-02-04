@@ -204,9 +204,13 @@ me_config = mylib.get_config()
 os.makedirs(me_config["workdir"], exist_ok=True)
 
 mfme = mfme_client.mfme_client(me_config["mfme"])
-if len(sys.argv) == 2:
-    if sys.argv[1].startswith("https://moneyforward.com/users/two_step_verifications/verify"):
-        mfme.MFAVerify(sys.argv[1])
+if len(sys.argv) >= 2:
+    for i, arg in enumerate(sys.argv):
+        print(i, ":", arg)
+        if arg.startswith("https://moneyforward.com/users/two_step_verifications/verify"):
+            mfme.MFAVerify(arg)
+        if arg.startswith("#"):
+            me_config["slack"]["channel"]=arg
 
 conn = sqlite3.connect(me_config["dbfile"])
 updateIncomeOutgo(mfme, conn)
