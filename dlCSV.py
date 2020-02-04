@@ -138,7 +138,8 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     last_one_year_mean = last_one_year.groupby(
         ['Year', 'Month']).sum()["Amount"].mean()
 
-    msg = fdate(date.today())+"\n\n"
+    msg = "subject: 家計のご報告\n"
+    msg += fdate(date.today())+"\n\n"
     msg += '今月の確定額は {:>9,.0f} 円 です。\n\n'.format(abs(thismonth_sum))
     msg += '今月の予想額は {:>9,.0f} 円 です。\n'.format(abs(thismonth_expect))
     msg += '先月の確定額は {:>9,.0f} 円 でした。\n'.format(abs(lastmonth_sum))
