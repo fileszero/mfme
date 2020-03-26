@@ -204,6 +204,7 @@ me_config = mylib.get_config()
 os.makedirs(me_config["workdir"], exist_ok=True)
 
 mfme = mfme_client.mfme_client(me_config["mfme"])
+
 if len(sys.argv) >= 2:
     for i, arg in enumerate(sys.argv):
         print(i, ":", arg)
