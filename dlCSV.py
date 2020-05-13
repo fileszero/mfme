@@ -146,7 +146,14 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     msg += '１年間の平均は {:>9,.0f} 円/月 です。\n'.format(abs(last_one_year_mean))
 
     # 資産推移
-    datefrom = basedate + relativedelta(months=-6)
+    sql = ("select Min(Date) as datefrom from BSHistory where total=(select max(total) from BSHistory)")
+    df = pd.read_sql(sql, conn)
+    datefrom = pd.to_datetime(df["datefrom"])[0]
+    half_year_ago = basedate + relativedelta(months=-6)
+    if half_year_ago < datefrom :
+        datefrom = half_year_ago
+    print(datefrom)
+
     sql = ("select * from BSHistory "
            + "WHERE Date>='" +
            datefrom.strftime("%Y/%m/%d") + "'"
@@ -203,20 +210,24 @@ me_config = mylib.get_config()
 
 os.makedirs(me_config["workdir"], exist_ok=True)
 
-mfme = mfme_client.mfme_client(me_config["mfme"])
-
-if len(sys.argv) >= 2:
-    for i, arg in enumerate(sys.argv):
-        print(i, ":", arg)
-        if arg.startswith("https://moneyforward.com/users/two_step_verifications/verify"):
-            mfme.MFAVerify(arg)
-        if arg.startswith("#"):
-            me_config["slack"]["channel"]=arg
-
 conn = sqlite3.connect(me_config["dbfile"])
-updateIncomeOutgo(mfme, conn)
-updateBSHistory(mfme, conn)
 msg = makeReportMessage(conn)
 print(msg)
-sendSlackMessage(msg)
-conn.close()
+
+# mfme = mfme_client.mfme_client(me_config["mfme"])
+
+# if len(sys.argv) >= 2:
+#     for i, arg in enumerate(sys.argv):
+#         print(i, ":", arg)
+#         if arg.startswith("https://moneyforward.com/users/two_step_verifications/verify"):
+#             mfme.MFAVerify(arg)
+#         if arg.startswith("#"):
+#             me_config["slack"]["channel"]=arg
+
+# conn = sqlite3.connect(me_config["dbfile"])
+# updateIncomeOutgo(mfme, conn)
+# updateBSHistory(mfme, conn)
+# msg = makeReportMessage(conn)
+# print(msg)
+# sendSlackMessage(msg)
+# conn.close()
