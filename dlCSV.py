@@ -210,24 +210,24 @@ me_config = mylib.get_config()
 
 os.makedirs(me_config["workdir"], exist_ok=True)
 
-conn = sqlite3.connect(me_config["dbfile"])
-msg = makeReportMessage(conn)
-print(msg)
-
-# mfme = mfme_client.mfme_client(me_config["mfme"])
-
-# if len(sys.argv) >= 2:
-#     for i, arg in enumerate(sys.argv):
-#         print(i, ":", arg)
-#         if arg.startswith("https://moneyforward.com/users/two_step_verifications/verify"):
-#             mfme.MFAVerify(arg)
-#         if arg.startswith("#"):
-#             me_config["slack"]["channel"]=arg
-
 # conn = sqlite3.connect(me_config["dbfile"])
-# updateIncomeOutgo(mfme, conn)
-# updateBSHistory(mfme, conn)
 # msg = makeReportMessage(conn)
 # print(msg)
-# sendSlackMessage(msg)
-# conn.close()
+
+mfme = mfme_client.mfme_client(me_config["mfme"])
+
+if len(sys.argv) >= 2:
+    for i, arg in enumerate(sys.argv):
+        print(i, ":", arg)
+        if arg.startswith("https://moneyforward.com/users/two_step_verifications/verify"):
+            mfme.MFAVerify(arg)
+        if arg.startswith("#"):
+            me_config["slack"]["channel"]=arg
+
+conn = sqlite3.connect(me_config["dbfile"])
+updateIncomeOutgo(mfme, conn)
+updateBSHistory(mfme, conn)
+msg = makeReportMessage(conn)
+print(msg)
+sendSlackMessage(msg)
+conn.close()
