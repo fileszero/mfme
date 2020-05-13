@@ -80,3 +80,9 @@ pip3 install slackclient
 15 9 * * 0,2,3,4,6 user LC_CTYPE="C.UTF-8" /usr/local/bin/python3.8 /home/user/apps/mfme/dlCSV.py "#random"
 
 ```
+
+### deploy
+```
+cd appfolder
+git pull origin
+```
