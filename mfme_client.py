@@ -69,6 +69,10 @@ class mfme_client:
         # ログインボタンを押す
         self.clickByXPath("//input[@type='submit']")
         self.browser().get("https://moneyforward.com/")
+
+        # 待機
+        already_login = self.browser().find_elements_by_xpath("//a[@href='/users/sign_out']")
+
         # frm = self.browser().find_element_by_name("commit")
         # frm.click()
 

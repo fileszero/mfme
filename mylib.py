@@ -52,11 +52,11 @@ def get_ffprofile_path(profile):
     return path
 
 
-def get_config():
+def get_config(filename='me.json'):
     global _me_config
     if not _me_config:
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        json_path = os.path.join(script_dir, "me.json")
+        json_path = os.path.join(script_dir, filename)
         with open(json_path, "r", encoding="utf-8") as fp:
             _me_config = json.load(fp)
     return _me_config

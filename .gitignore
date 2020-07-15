@@ -6,3 +6,4 @@ pandas/*
 vm/.vagrant/*
 ss_*.png
 
+sbi.json
