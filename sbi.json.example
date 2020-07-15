@@ -1,0 +1,8 @@
+{
+    "workdir": "C:\\temp\\sbi",
+    "sbi": {
+        "mail": "user id",
+        "password": "login password",
+        "tradePassword":"trade password"
+    }
+}
