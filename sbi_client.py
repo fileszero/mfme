@@ -112,7 +112,7 @@ class sbi_client:
         quantity = target/price
         return int(math.ceil(quantity / unit)) * unit
 
-    def CreditBuyingIFDOCO(self, stockCode,waitVariation:float=3,priceWidth:float=2, quantity:int=0):
+    def CreditBuyingIFDOCO(self, stockCode,quantity:int=0, waitVariation:float=3,priceWidth:float=2):
         self.openStock(stockCode)
 
         # 売買単位
