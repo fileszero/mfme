@@ -16,6 +16,7 @@ sbi = sbi_client.sbi_client(sbi_config["sbi"])
 
 sbi.login()
 # sbi.openStock('9984')
+
 while True:
     val = input('Enter Code:')
     params= val.split()

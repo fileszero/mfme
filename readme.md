@@ -60,6 +60,7 @@ https://github.com/mozilla/geckodriver/releases
 
 ```
 pip3 install selenium
+pip3 install pyvirtualdisplay
 ```
 ### pandas 等
 ```

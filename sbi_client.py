@@ -91,21 +91,20 @@ class sbi_client:
         self.waitByXPath("//img[@title='ログアウト']")
 
     def openStock(self, stockCode):
-        url="https://site1.sbisec.co.jp/ETGate/"
-        # \
-        #     f"?stock_sec_code_mul={stockCode}" \
-        #     "&exchange_code=TKY" \
-        #     f"&i_stock_sec={stockCode}" \
-        #     "&i_exchange_code=TKY" \
-        #     "&i_output_type=0" \
-        #     "&i_dom_flg=1" \
-        #     "&_ControlID=WPLETsiR001Control" \
-        #     "&_PageID=WPLETsiR001Ilst10" \
-        #     "&_ActionID=getDetailOfStockPriceJP" \
-        #     "&getFlg=on"
+        url="https://site1.sbisec.co.jp/ETGate/" \
+            f"?stock_sec_code_mul={stockCode}" \
+            "&exchange_code=TKY" \
+            f"&i_stock_sec={stockCode}" \
+            "&i_exchange_code=TKY" \
+            "&i_output_type=0" \
+            "&i_dom_flg=1" \
+            "&_ControlID=WPLETsiR001Control" \
+            "&_PageID=WPLETsiR001Ilst10" \
+            "&_ActionID=getDetailOfStockPriceJP" \
+            "&getFlg=on"
         self.browser().get(url)
-        self.inputByXPath( '//*[@id="top_stock_sec"]',stockCode)
-        self.clickByXPath('//*[@id="srchK"]/a')
+        # self.inputByXPath( '//*[@id="top_stock_sec"]',stockCode)
+        # self.clickByXPath('//*[@id="srchK"]/a')
         e = self.browser().find_element_by_xpath('//*[@id="main"]//a[contains(text(), "ポートフォリオへ追加")]')
         print(e)
 
@@ -113,7 +112,7 @@ class sbi_client:
         quantity = target/price
         return int(math.ceil(quantity / unit)) * unit
 
-    def CreditBuyingIFDOCO(self, stockCode,waitVariation:float=5,priceWidth:float=2, quantity:int=0):
+    def CreditBuyingIFDOCO(self, stockCode,waitVariation:float=3,priceWidth:float=2, quantity:int=0):
         self.openStock(stockCode)
 
         # 売買単位

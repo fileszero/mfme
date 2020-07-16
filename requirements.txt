@@ -1,0 +1,19 @@
+#### windows
+## set PYTHONUTF8=1
+## pip3 install -r requirements.txt
+
+### selenium
+selenium
+pyvirtualdisplay
+
+### pandas 等
+
+pandas
+matplotlib
+scikit-learn
+
+
+### slack
+
+slackclient
+
