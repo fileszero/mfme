@@ -3,6 +3,7 @@
 import os
 import sys
 import json
+import re
 from datetime import date
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -52,13 +53,22 @@ def get_ffprofile_path(profile):
     return path
 
 
+def jsonc_to_json(string):
+    # ブロックコメント除去
+    string = re.sub(r'/\*.*?\*/', r'', string, flags=re.DOTALL)
+
+    # ラインコメント除去
+    string = re.sub(r'//.*\n', r'\n', string)
+    return '\n'.join(filter(lambda x: x.strip(), string.split('\n')))
+
 def get_config(filename='me.json'):
     global _me_config
     if not _me_config:
         script_dir = os.path.dirname(os.path.abspath(__file__))
         json_path = os.path.join(script_dir, filename)
         with open(json_path, "r", encoding="utf-8") as fp:
-            _me_config = json.load(fp)
+            jsonc=fp.read()
+            _me_config = json.loads( jsonc_to_json(jsonc))
     return _me_config
 
 
