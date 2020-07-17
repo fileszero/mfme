@@ -62,15 +62,12 @@ def jsonc_to_json(string):
     return '\n'.join(filter(lambda x: x.strip(), string.split('\n')))
 
 def get_config(filename='me.json'):
-    global _me_config
-    if not _me_config:
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        json_path = os.path.join(script_dir, filename)
-        with open(json_path, "r", encoding="utf-8") as fp:
-            jsonc=fp.read()
-            _me_config = json.loads( jsonc_to_json(jsonc))
-    return _me_config
-
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(script_dir, filename)
+    with open(json_path, "r", encoding="utf-8") as fp:
+        jsonc=fp.read()
+        config = json.loads( jsonc_to_json(jsonc))
+        return config
 
 def get_ff_executable_path():
     script_dir = os.path.dirname(os.path.abspath(__file__))

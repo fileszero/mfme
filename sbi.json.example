@@ -4,5 +4,21 @@
         "mail": "user id",
         "password": "login password",
         "tradePassword":"trade password"
+    },
+    "CreditBuyingIFDOCO":{
+        "9984":{    // ソフトバンクグループ
+            "code":"9984",
+            "quantity":300,
+            "waitPrice":2.0,
+            "profit":2.0,
+            "losscut":-4.0
+        },
+        "6501":{    // 日立
+            "code":"6501",
+            "quantity":0,
+            "waitPrice":2.0,
+            "profit":1.0,
+            "losscut":-3.0
+        }
     }
 }

@@ -7,3 +7,4 @@ vm/.vagrant/*
 ss_*.png
 
 sbi.json
+sbi.jsonc

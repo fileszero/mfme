@@ -8,6 +8,7 @@ import datetime
 import math
 from dateutil.relativedelta import relativedelta
 import mylib
+from decimal import Decimal
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -112,7 +113,7 @@ class sbi_client:
         quantity = target/price
         return int(math.ceil(quantity / unit)) * unit
 
-    def CreditBuyingIFDOCO(self, stockCode,quantity:int=0, waitVariation:float=3,priceWidth:float=2):
+    def CreditBuyingIFDOCO(self, stockCode,quantity, waitPrice:Decimal,profit:Decimal,losscut:Decimal):
         self.openStock(stockCode)
 
         # 売買単位
@@ -157,10 +158,10 @@ class sbi_client:
 
         # 現在値
         e = self.browser().find_element_by_xpath('//*[@id="HiddenTradePrice"]')
-        cur_price= float(self.browser().execute_script("return arguments[0].innerHTML",e))
-        price=cur_price + waitVariation
+        cur_price= Decimal(self.browser().execute_script("return arguments[0].innerHTML",e))
+        price=cur_price + waitPrice
 
-        min_quantity=self.minQuantity(unit,price,100*10000)
+        min_quantity=self.minQuantity(unit,price,(100*10000)+10000)
         if( quantity<min_quantity):
             quantity=min_quantity
 
@@ -191,11 +192,11 @@ class sbi_client:
 
         # OCO1 利益確定
         e = self.browser().find_element_by_xpath('//*[@id="doneoco1_input_price"]')
-        e.send_keys(str(price+priceWidth))
+        e.send_keys(str(round( price+profit,1)))
 
         # OCO2 損切
         e = self.browser().find_element_by_xpath('//*[@id="doneoco2_input_trigger_price"]')
-        e.send_keys(str(price-priceWidth))
+        e.send_keys(str(price+losscut))
         e = self.browser().find_element_by_xpath('//*[@id="nariyuki_ifdoco"]')
         e.click()
 
