@@ -26,10 +26,13 @@ while True:
     sbi_config = mylib.get_config("sbi.jsonc")
     if params[0] in sbi_config["CreditBuyingIFDOCO"]:
         criteria=sbi_config["CreditBuyingIFDOCO"][params[0]]
-        waitPrice=Decimal(str(criteria["waitPrice"]))
+        stopOrder=Decimal(str(criteria["stopOrder"]))
+        limitOrder=Decimal(str(criteria["limitOrder"]))
         if len(params)>=2:
-            waitPrice=Decimal(str(params[1]))
+            stop_limit_diff= stopOrder-limitOrder
+            stopOrder=Decimal(str(params[1]))
+            limitOrder=stopOrder-stop_limit_diff
 
-        sbi.CreditBuyingIFDOCO(criteria["code"],criteria["quantity"],waitPrice,Decimal(str(criteria["profit"])),Decimal(str(criteria["losscut"])))
+        sbi.CreditBuyingIFDOCO(criteria["code"],criteria["quantity"],stopOrder,limitOrder,Decimal(str(criteria["profit"])),Decimal(str(criteria["losscut"])))
     else:
         print("No stockcode definition")

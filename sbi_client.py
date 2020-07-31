@@ -107,13 +107,14 @@ class sbi_client:
         # self.inputByXPath( '//*[@id="top_stock_sec"]',stockCode)
         # self.clickByXPath('//*[@id="srchK"]/a')
         e = self.browser().find_element_by_xpath('//*[@id="main"]//a[contains(text(), "ポートフォリオへ追加")]')
-        print(e)
+        e = self.browser().find_element_by_xpath('//h3/span[@class="fxx01"]')
+        print(e.text)
 
     def minQuantity(self,unit:int,price:float,target:float):
         quantity = target/price
         return int(math.ceil(quantity / unit)) * unit
 
-    def CreditBuyingIFDOCO(self, stockCode,quantity, waitPrice:Decimal,profit:Decimal,losscut:Decimal):
+    def CreditBuyingIFDOCO(self, stockCode,quantity, stopOrder:Decimal,limitOrder:Decimal, profit:Decimal,losscut:Decimal):
         self.openStock(stockCode)
 
         # 売買単位
@@ -159,9 +160,10 @@ class sbi_client:
         # 現在値
         e = self.browser().find_element_by_xpath('//*[@id="HiddenTradePrice"]')
         cur_price= Decimal(self.browser().execute_script("return arguments[0].innerHTML",e))
-        price=cur_price + waitPrice
+        stopOrderPrice=cur_price + stopOrder    # 逆指値
+        limitOrderPrice=cur_price + limitOrder  # 指値
 
-        min_quantity=self.minQuantity(unit,price,(100*10000)+10000)
+        min_quantity=self.minQuantity(unit,stopOrderPrice,(100*10000)+10000)
         if( quantity<min_quantity):
             quantity=min_quantity
 
@@ -172,15 +174,15 @@ class sbi_client:
         # 逆指値
         e = self.browser().find_element_by_xpath('//*[@id="gyakusashine_ifdoco"]')
         e.click()
-        # 価格
+        # 逆指値-価格 円 以上になった時点で
         e = self.browser().find_element_by_xpath('//*[@id="ifoco_input_trigger_price"]')
-        e.send_keys(str(price))
+        e.send_keys(str(stopOrderPrice))
         # 逆指値-指値
         e = self.browser().find_element_by_xpath('//*[@id="gyakusashine_sashine_ifdoco_u"]')
         e.click()
         # 逆指値-指値-価格
         e = self.browser().find_element_by_xpath('//*[@id="ifoco_gsn_input_price"]')
-        e.send_keys(str(price))
+        e.send_keys(str(limitOrderPrice))
 
         #期間
         e = self.browser().find_element_by_xpath('//input[@name="ifoco_selected_limit_in" and @value="this_day"]')
@@ -192,11 +194,11 @@ class sbi_client:
 
         # OCO1 利益確定
         e = self.browser().find_element_by_xpath('//*[@id="doneoco1_input_price"]')
-        e.send_keys(str(round( price+profit,1)))
+        e.send_keys(str(round( stopOrderPrice+profit,1)))
 
         # OCO2 損切
         e = self.browser().find_element_by_xpath('//*[@id="doneoco2_input_trigger_price"]')
-        e.send_keys(str(price+losscut))
+        e.send_keys(str(limitOrderPrice+losscut))
         e = self.browser().find_element_by_xpath('//*[@id="nariyuki_ifdoco"]')
         e.click()
 
