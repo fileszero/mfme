@@ -6,6 +6,7 @@ import os
 import json
 import datetime
 import math
+import re
 from dateutil.relativedelta import relativedelta
 import mylib
 from decimal import Decimal
@@ -115,13 +116,13 @@ class sbi_client:
         return int(math.ceil(quantity / unit)) * unit
 
     def CreditBuyingIFDOCO(self, stockCode,quantity, stopOrder:Decimal,limitOrder:Decimal, profit:Decimal,losscut:Decimal):
-        self.openStock(stockCode)
+        # self.openStock(stockCode)
 
-        # 売買単位
-        e = self.browser().find_element_by_xpath('//th[./p[contains(text(), "売買単位")]]/following-sibling::td')
-        unit= int(e.text)
+        # # 売買単位
+        # e = self.browser().find_element_by_xpath('//th[./p[contains(text(), "売買単位")]]/following-sibling::td')
+        # unit= int(e.text)
 
-        self.clickByXPath('//*[@id="clmSubArea"]//a[contains(text(), "信用買")]')
+        # self.clickByXPath('//*[@id="clmSubArea"]//a[contains(text(), "信用買")]')
         # # 現物
         # url="https://site1.sbisec.co.jp/ETGate/?" \
         #     "_ControlID=WPLETstT002Control" \
@@ -135,21 +136,30 @@ class sbi_client:
         #     "&mktlist=TKY" \
         #     "&trade_Market="
         #     # "&_SeqNo=1594774393721_default_task_469_WPLETsiR001Ilst10_getDetailOfStockPriceJP" \
-        # # 信用買
-        # url="https://site1.sbisec.co.jp/ETGate/?" \
-        #     "_ControlID=WPLETstT005Control" \
-        #     "&_DataStoreID=DSWPLETstT005Control" \
-        #     "&_PageID=DefaultPID" \
-        #     "&getFlg=on" \
-        #     "&_ActionID=DefaultAID" \
-        #     f"&stock_sec_code={stockCode}" \
-        #     "&market=TKY" \
-        #     f"&stock_sec_code_mul={stockCode}" \
-        #     "&payment_limit=6"
-        #     # "&_SeqNo=1594780715742_default_task_657_WPLETsiR001Iser10_clickToSearchStockPriceJP" \
+        # 信用買
+        url="https://site1.sbisec.co.jp/ETGate/?" \
+            "_ControlID=WPLETstT005Control" \
+            "&_DataStoreID=DSWPLETstT005Control" \
+            "&_PageID=DefaultPID" \
+            "&getFlg=on" \
+            "&_ActionID=DefaultAID" \
+            f"&stock_sec_code={stockCode}" \
+            "&market=TKY" \
+            f"&stock_sec_code_mul={stockCode}" \
+            "&payment_limit=6"
+            # "&_SeqNo=1594780715742_default_task_657_WPLETsiR001Iser10_clickToSearchStockPriceJP" \
 
-        # self.browser().get(url)
+        self.browser().get(url)
         self.clickByXPath('//*[@id="stocktype_ifdoco"]')
+
+        # 銘柄名
+        print(self.browser().find_element_by_xpath('//input[@name="official_jpn_comp_name"]').get_attribute("value"))
+
+        # 売買単位
+        e = self.browser().find_element_by_xpath('//td[contains(text(), "売買単位")]')
+        innerHtml=self.browser().execute_script("return arguments[0].innerHTML",e)
+        unit = int(re.findall('売買単位：\s*(\d+)\s*<',innerHtml)[0])
+        print(unit)
 
         # autoUpdateXPath='//*[@id="imgRefArea_MTB0" and @title="稼働"]'
         # e = self.browser().find_elements_by_xpath(autoUpdateXPath)
