@@ -158,7 +158,7 @@ class sbi_client:
         # 売買単位
         e = self.browser().find_element_by_xpath('//td[contains(text(), "売買単位")]')
         innerHtml=self.browser().execute_script("return arguments[0].innerHTML",e)
-        unit = int(re.findall('売買単位：\s*(\d+)\s*<',innerHtml)[0])
+        unit = int(re.findall(r'売買単位：\s*(\d+)\s*<',innerHtml)[0])
         print(unit)
 
         # autoUpdateXPath='//*[@id="imgRefArea_MTB0" and @title="稼働"]'
