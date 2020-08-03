@@ -44,7 +44,7 @@ def updateIncomeOutgo(mfme: mfme_client, conn: sqlite3.Connection):
     # print(files)
     for f in files:
         print(f)
-        df = pd.read_csv(f, encoding="SHIFT-JIS")
+        df = pd.read_csv(f, encoding="cp932")
         df.to_sql("import_work", conn, if_exists="replace")
         insetrt_sql = """
         INSERT INTO IncomeOutgo(IsTarget,Date,Detail,Amount,Account,Class1,Class2,Memo,IsTransfer,MFId)
