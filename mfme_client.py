@@ -48,11 +48,11 @@ class mfme_client:
         # self.browser().get("https://id.moneyforward.com/sign_in/email")
         # already_login = self.browser().find_elements_by_xpath(
         #     "//div[contains(@class,'alert-success')][contains(text(), '既にログインしています')]")
-        already_login = self.browser().find_elements_by_xpath("//a[@href='/users/sign_out']")
+        already_login = self.browser().find_elements_by_xpath("//a[@href='/sign_out']")
         if len(already_login) != 0:
             return
         # メールでログインに移動
-        self.clickByXPath("//a[@href='/users/sign_in']")
+        self.clickByXPath("//a[@href='/sign_in']")
         self.clickByXPath("//a[contains(@href, '/sign_in/email')]")
 
         # メールアドレスを入力
