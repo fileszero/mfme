@@ -16,10 +16,11 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 import sqlite3
 from pyvirtualdisplay import Display
 import platform
-
+import uuid
 
 class sbi_client:
     _browser = None
@@ -46,6 +47,11 @@ class sbi_client:
             self._browser = webdriver.Firefox(executable_path=mylib.get_ff_executable_path(
             ), firefox_profile=mylib.get_ff_profile())
         return self._browser
+
+    def showInFront(self):
+        self.browser().switch_to.window(self.browser().current_window_handle)
+        self.browser().execute_script("window.focus();")
+        # self.browser().fullscreen_window()
 
     def waitByXPath(self, xpath):
         WebDriverWait(self.browser(), 10).until(
@@ -222,3 +228,151 @@ class sbi_client:
         # 記録
         # ss_name=f"{stockCode}_.png"
         # self.browser().save_screenshot(ss_name)
+
+    # 現物買
+    def ActualBuyingIFDOCO(self, stockCode,quantity=0, profit:float=0.05,losscut:float=0.03):
+        self.showInFront()
+        # 現物買
+        url="https://site1.sbisec.co.jp/ETGate/?" \
+            "_ControlID=WPLETstT002Control" \
+            "&_DataStoreID=DSWPLETstT002Control" \
+            "&_PageID=DefaultPID" \
+            "&getFlg=on" \
+            "&_ActionID=DefaultAID" \
+            f"&stock_sec_code={stockCode}" \
+            "&market=TKY" \
+            f"&stock_sec_code_mul={stockCode}" \
+            "&mktlist=TKY" \
+            "&trade_Market="
+            # "&_SeqNo=1606181946998_default_task_221_WPLETacR001Rlst10_detail_kabu_1" \
+        self.browser().get(url)
+        self.clickByXPath('//*[@id="stocktype_ifdoco"]')    #IFDOCO
+
+        # 銘柄名
+        e = self.browser().find_element_by_xpath('//h3/span[@style="font-weight:bold;font-size:18px;"]')
+        print(e.text)
+
+
+        # 売買単位
+        e = self.browser().find_element_by_xpath('//td[contains(text(), "売買単位")]')
+        innerHtml=self.browser().execute_script("return arguments[0].innerHTML",e)
+        unit = int(re.findall(r'売買単位：\s*(\d+)\s*<',innerHtml)[0])
+        print(unit)
+
+        # autoUpdateXPath='//*[@id="imgRefArea_MTB0" and @title="稼働"]'
+        # e = self.browser().find_elements_by_xpath(autoUpdateXPath)
+        # if len(e) >0:
+        #     self.clickByXPath(autoUpdateXPath)
+        #     self.browser().find_elements_by_xpath('//*[@id="imgRefArea_MTB0" and @title="停止"]')
+
+        # 現在値
+        e = self.browser().find_element_by_xpath('//*[@id="HiddenTradePrice"]')
+        cur_price= Decimal(self.browser().execute_script("return arguments[0].innerHTML",e))
+
+        # 株数
+        if( quantity<unit):
+            quantity=unit
+        e = self.browser().find_element_by_xpath('//*[@id="ifdoco_input_quantity"]')
+        e.clear()
+        e.send_keys(str(quantity))
+        # 指値
+        e = self.browser().find_element_by_xpath('//*[@id="sashine_ifdoco_u"]')
+        e.click()
+        # 価格
+        e = self.browser().find_element_by_xpath('//*[@id="ifoco_input_price"]')
+        e.clear()
+        e.send_keys(str(cur_price))
+
+        #期間
+        e = self.browser().find_element_by_xpath('//input[@name="ifoco_selected_limit_in" and @value="this_day"]')
+        e.click()
+
+        # 預り区分 特定預り
+        e = self.browser().find_element_by_xpath('//input[@name="ifdoco_hitokutei_trade_kbn" and @value="0"]')
+        e.click()
+
+
+        # OCO1 利益確定
+        e = self.browser().find_element_by_xpath('//*[@id="doneoco1_input_price"]')
+        profit_diff=mylib.RoundHalfUp((float(cur_price)*profit),0)
+        if(profit_diff>50):
+            profit_diff = 50
+        profit_price=mylib.RoundHalfUp( float(cur_price) + float(profit_diff),0)
+        e.send_keys(str(profit_price))
+
+        # OCO2 損切
+        e = self.browser().find_element_by_xpath('//*[@id="doneoco2_input_trigger_price"]')
+        losscut_diff=mylib.RoundHalfUp( (float(cur_price)*losscut),0)
+        if(losscut_diff>profit_diff/2):
+            losscut_diff=profit_diff/2
+        losscut_price=mylib.RoundHalfUp( float(cur_price) - float(losscut_diff),0)
+        e.send_keys(str(losscut_price))
+        e = self.browser().find_element_by_xpath('//*[@id="nariyuki_ifdoco"]')  #成行 で執行
+        e.click()
+
+        #期間
+        e = self.browser().find_element_by_xpath('//input[@name="doneoco_selected_limit_in" and @value="kikan"]')   #期間指定
+        e.click()
+        # 日付
+        e = self.browser().find_element_by_xpath('//select[@name="doneoco_limit_in"]')   #期間指定
+        select=Select(e)
+        select.select_by_index( len(select.options)-1 )
+
+
+        # 取引PW
+        e = self.browser().find_element_by_xpath('//*[@id="pwd3"]')
+        e.send_keys(self.tradePassword)
+
+
+        # 注文確認画面へ
+        self.clickByXPath('//a[@id="botton1"]')
+
+        # 記録
+        # ss_name=f"{stockCode}_.png"
+        # self.browser().save_screenshot(ss_name)
+
+    def GetOrders(self):
+        url = "https://site1.sbisec.co.jp/ETGate/?_ControlID=WPLETstT013Control" \
+            "&_PageID=DefaultPID" \
+            "&_DataStoreID=DSWPLETstT013Control" \
+            "&getFlg=on" \
+            "&_ActionID=DefaultAID"
+            # "&_SeqNo=1596757675532_default_task_488_WPLETstT005Best10_place" /
+
+        self.browser().get(url)
+        recs = self.browser().find_elements_by_xpath('//form[@action="/ETGate/"]//table[contains(@class, "md-l-table-01")]/*/tr')
+        for idx, rec in enumerate(recs[5:]):
+            mode=idx%3
+            cols=rec.find_elements_by_tag_name('td')
+            if mode==0:
+                stockCode=cols[0].text
+                status=cols[1].text
+                orderType=cols[2].text
+                stockName=cols[3].text
+                cancel_link=cols[4].find_element_by_xpath('a[contains(.,"取消")]')
+                edit_link=cols[4].find_element_by_xpath('a[contains(.,"訂正")]')
+            print(idx)
+
+    def openChart(self, stockCode):
+        hash=str(uuid.uuid4()).replace('-','')
+        url="https://mchart.iris.sbisec.co.jp/sbi/gchart/gc2/chart" \
+        f"?ricCode={stockCode}.T" \
+        "&style=main_domestic_chart" \
+        "&size=0" \
+        "&type=real" \
+        f"&hash={hash}" \
+        "&investor=customer"
+        self.browser().get(url)
+
+if __name__ == '__main__':
+
+    sbi_config = mylib.get_config("sbi.jsonc")
+
+    sbi = sbi_client(sbi_config["sbi"])
+
+    sbi.login()
+    # sbi.ActualBuyingIFDOCO(7513,quantity=0)
+    # sbi.GetOrders()
+    sbi.openChart('5929')
+
+    val = input('END OF __main__')

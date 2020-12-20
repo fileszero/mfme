@@ -2,6 +2,7 @@
 
 import os
 import sys
+import select
 import json
 import re
 from datetime import date
@@ -9,6 +10,8 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import platform
 from selenium import webdriver
+
+from decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_EVEN
 
 _me_config = None
 
@@ -104,3 +107,20 @@ def get_ff_profile() -> webdriver.FirefoxProfile:
 def get_end_of_month(cur: date) -> date:
     som = cur.replace(day=1) + relativedelta(months=1) + relativedelta(days=-1)
     return som
+
+def RoundHalfUp(val,digits) -> Decimal :
+    # https://note.nkmk.me/python-round-decimal-quantize/
+    format="0"
+    if( digits>0):
+        format="0." + ("0"*(digits-1))+"1"
+
+    return Decimal(str(val)).quantize(Decimal(format), rounding=ROUND_HALF_UP)
+
+def inputTimeOut(prompt:str, timeout_sec:int):
+    print(prompt)
+    # https://gist.github.com/atupal/5865237
+    i, o, e = select.select( [sys.stdin], [], [], timeout_sec )
+    if (i):
+        return sys.stdin.readline().strip()
+    else:
+        return ''
