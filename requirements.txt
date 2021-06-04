@@ -17,3 +17,6 @@ scikit-learn
 
 slackclient
 
+### GET HTML
+requests
+beautifulsoup4

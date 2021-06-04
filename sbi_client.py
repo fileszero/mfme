@@ -295,16 +295,16 @@ class sbi_client:
         # OCO1 利益確定
         e = self.browser().find_element_by_xpath('//*[@id="doneoco1_input_price"]')
         profit_diff=mylib.RoundHalfUp((float(cur_price)*profit),0)
-        if(profit_diff>50):
-            profit_diff = 50
+        # if(profit_diff>50):
+        #     profit_diff = 50
         profit_price=mylib.RoundHalfUp( float(cur_price) + float(profit_diff),0)
         e.send_keys(str(profit_price))
 
         # OCO2 損切
         e = self.browser().find_element_by_xpath('//*[@id="doneoco2_input_trigger_price"]')
         losscut_diff=mylib.RoundHalfUp( (float(cur_price)*losscut),0)
-        if(losscut_diff>profit_diff/2):
-            losscut_diff=profit_diff/2
+        # if(losscut_diff>profit_diff/2):
+        #     losscut_diff=profit_diff/2
         losscut_price=mylib.RoundHalfUp( float(cur_price) - float(losscut_diff),0)
         e.send_keys(str(losscut_price))
         e = self.browser().find_element_by_xpath('//*[@id="nariyuki_ifdoco"]')  #成行 で執行
