@@ -229,6 +229,18 @@ class sbi_client:
         # ss_name=f"{stockCode}_.png"
         # self.browser().save_screenshot(ss_name)
 
+    def to_int(self,s:str,default=None) -> int:
+        try:
+            return int(s.replace(',', '').strip())
+        except:
+            return default
+
+    def to_dec(self,s:str,default=None) -> Decimal:
+        try:
+            return Decimal(s.replace(',', '').strip())
+        except:
+            return default
+
     # 現物買
     def ActualBuyingIFDOCO(self, stockCode,quantity=0, profit:float=0.05,losscut:float=0.03):
         self.showInFront()
@@ -268,6 +280,33 @@ class sbi_client:
         # 現在値
         e = self.browser().find_element_by_xpath('//*[@id="HiddenTradePrice"]')
         cur_price= Decimal(self.browser().execute_script("return arguments[0].innerHTML",e))
+        #買い気配
+        ita_info = self.browser().find_elements_by_xpath('//*[@id="posElem_370"]/table/tbody/tr')
+        sell_kehai_min=None
+        buy_kehai_max=None
+        kehai_price_prev=None
+        trade_scale=Decimal( 100000 )
+        for kehai in ita_info:
+            cols=kehai.find_elements_by_xpath('td')
+            sell_kehai=self.to_dec( cols[0].text )
+            kehai_price=self.to_dec( cols[1].text )
+            buy_kehai=self.to_dec( cols[2].text )
+            if kehai_price is not None:
+                if sell_kehai is not None:
+                    sell_kehai_min=kehai_price
+                if buy_kehai_max is None and buy_kehai is not None:
+                    buy_kehai_max=kehai_price
+            if kehai_price_prev is not None and kehai_price is not None:
+                if trade_scale > (kehai_price_prev-kehai_price):
+                    trade_scale = kehai_price_prev-kehai_price
+            kehai_price_prev=kehai_price
+            # print( kehai )
+        # 購入価格　決定
+        if all([sell_kehai_min, buy_kehai_max ,trade_scale]):
+            if(buy_kehai_max +trade_scale)<sell_kehai_min:
+                cur_price=buy_kehai_max + trade_scale
+            elif sell_kehai_min<cur_price:
+                cur_price=sell_kehai_min
 
         # 株数
         if( quantity<unit):
@@ -364,6 +403,30 @@ class sbi_client:
         "&investor=customer"
         self.browser().get(url)
 
+    # 現物約定代金合計を取得
+    def GetActualExecutionPriceOfToday(self):
+        url="https://site1.sbisec.co.jp/ETGate/WPLETagR001Control/DefaultPID/DefaultAID"
+        self.browser().get(url)
+        self.clickByXPath('//a[contains(text(),"国内株式(現物)") and @class="wlink"]')
+
+        col=self.browser().find_element_by_xpath("//td[string()='受渡金額/決済損益（日計り分）']")
+        #table=sbi.browser().find_element_by_xpath("//td[contains(string(),'受渡金額/決済損益（日計り分）')]/parent::tr//parent::table")
+        table=col.find_element_by_xpath('../..')
+        rows=table.find_elements_by_xpath('tr')
+        total:int = 0
+        for idx, row in enumerate(rows[1:]):
+            cols=row.find_elements_by_tag_name('td')
+            col_offset=0
+            if len(cols)!=9:
+                col_offset=-1
+            buy_sell_cell=cols[1+col_offset]
+            price_cell=cols[7+col_offset]
+
+            price=self.to_int(price_cell.text.split()[0])
+            # print(price)
+            total += price
+        return total
+
 if __name__ == '__main__':
 
     sbi_config = mylib.get_config("sbi.jsonc")
@@ -373,6 +436,8 @@ if __name__ == '__main__':
     sbi.login()
     # sbi.ActualBuyingIFDOCO(7513,quantity=0)
     # sbi.GetOrders()
-    sbi.openChart('5929')
+    # sbi.openChart('5929')
+    total=sbi.GetActualExecutionPriceOfToday()
+    print(total)
 
     val = input('END OF __main__')

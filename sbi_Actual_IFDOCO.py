@@ -23,20 +23,25 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 prompt_file = os.path.join(script_dir, 'BuyRule.txt')
 
 while True:
-    with open(prompt_file) as f:
-        print(f.read())
-
-    val = input('現物買 IFDOCO Enter Code:')
-    params= val.split()
-    #reload params
-    sbi_config = mylib.get_config("sbi.jsonc")
-    code= params[0].strip()
-
-    if not re.match(r'\d{4}',code):
-        print('non stock code')
-        continue
     try:
-        sbi.ActualBuyingIFDOCO(stockCode=code,profit=0.02,losscut=0.03)
+        with open(prompt_file) as f:
+            print(f.read())
+
+        val = input('現物買 IFDOCO Enter Code:')
+        params= val.split()
+        #reload params
+        sbi_config = mylib.get_config("sbi.jsonc")
+        if len(params)==0:
+            total = sbi.GetActualExecutionPriceOfToday()
+            print(f"当日約定代金合計: {total/10000} 万円" )
+            continue
+
+        code= params[0].strip()
+
+        if not re.match(r'\d{4}',code):
+            print('non stock code')
+            continue
+        sbi.ActualBuyingIFDOCO(stockCode=code,profit=0.007,losscut=0.03)
     except Exception as e:
         print(e)
 
