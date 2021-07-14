@@ -124,3 +124,42 @@ def inputTimeOut(prompt:str, timeout_sec:int):
         return sys.stdin.readline().strip()
     else:
         return ''
+
+def to_int(self,s:str,default=None) -> int:
+    try:
+        return int(s.replace(',', '').strip())
+    except:
+        return default
+
+def to_dec(self,s:str,default=None) -> Decimal:
+    try:
+        return Decimal(s.replace(',', '').strip())
+    except:
+        return default
+
+def unit_floor(v:Decimal,unit:Decimal)->Decimal:
+    qv=v.quantize(Decimal("0.001"))
+    qunit=unit.quantize(Decimal("0.001"))
+    return (qv//qunit)*qunit
+
+def unit_ceil(v:Decimal,unit:Decimal)->Decimal:
+    qv=v.quantize(Decimal("0.001"))
+    qunit=unit.quantize(Decimal("0.001"))
+    c=(qv//qunit)*qunit
+    if qv-c != 0:
+        c+=qunit
+    return c
+
+def unit_round(v:Decimal,unit:Decimal)->Decimal:
+    qv=v.quantize(Decimal("0.001"))
+    qunit=unit.quantize(Decimal("0.001"))
+    c=(qv//qunit)*qunit
+    if (qv-c)*2>unit != 0:
+        c+=qunit
+    return c
+
+
+if __name__ == '__main__':
+    unit_ceil(Decimal(123.4),Decimal(0.4))
+    unit_round(Decimal(122),Decimal(5))
+    unit_round(Decimal(123),Decimal(5))

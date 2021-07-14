@@ -229,18 +229,6 @@ class sbi_client:
         # ss_name=f"{stockCode}_.png"
         # self.browser().save_screenshot(ss_name)
 
-    def to_int(self,s:str,default=None) -> int:
-        try:
-            return int(s.replace(',', '').strip())
-        except:
-            return default
-
-    def to_dec(self,s:str,default=None) -> Decimal:
-        try:
-            return Decimal(s.replace(',', '').strip())
-        except:
-            return default
-
     # 現物買
     def ActualBuyingIFDOCO(self, stockCode,quantity=0, profit:float=0.05,losscut:float=0.03):
         self.showInFront()
@@ -288,9 +276,9 @@ class sbi_client:
         trade_scale=Decimal( 100000 )
         for kehai in ita_info:
             cols=kehai.find_elements_by_xpath('td')
-            sell_kehai=self.to_dec( cols[0].text )
-            kehai_price=self.to_dec( cols[1].text )
-            buy_kehai=self.to_dec( cols[2].text )
+            sell_kehai=mylib.to_dec( cols[0].text )
+            kehai_price=mylib.to_dec( cols[1].text )
+            buy_kehai=mylib.to_dec( cols[2].text )
             if kehai_price is not None:
                 if sell_kehai is not None:
                     sell_kehai_min=kehai_price
@@ -422,7 +410,7 @@ class sbi_client:
             buy_sell_cell=cols[1+col_offset]
             price_cell=cols[7+col_offset]
 
-            price=self.to_int(price_cell.text.split()[0])
+            price=mylib.to_int(price_cell.text.split()[0])
             # print(price)
             total += price
         return total
