@@ -295,20 +295,22 @@ class sbi_client:
                 cur_price=buy_kehai_max + trade_scale
             elif sell_kehai_min<cur_price:
                 cur_price=sell_kehai_min
+            else:
+                cur_price=mylib.unit_round(cur_price,trade_scale)
 
         # 株数
         if( quantity<unit):
             quantity=unit
         e = self.browser().find_element_by_xpath('//*[@id="ifdoco_input_quantity"]')
         e.clear()
-        e.send_keys(str(quantity))
+        e.send_keys(mylib.decimal_normalize(quantity))
         # 指値
         e = self.browser().find_element_by_xpath('//*[@id="sashine_ifdoco_u"]')
         e.click()
         # 価格
         e = self.browser().find_element_by_xpath('//*[@id="ifoco_input_price"]')
         e.clear()
-        e.send_keys(str(cur_price))
+        e.send_keys(mylib.decimal_normalize(cur_price))
 
         #期間
         e = self.browser().find_element_by_xpath('//input[@name="ifoco_selected_limit_in" and @value="this_day"]')
@@ -325,7 +327,8 @@ class sbi_client:
         # if(profit_diff>50):
         #     profit_diff = 50
         profit_price=mylib.RoundHalfUp( float(cur_price) + float(profit_diff),0)
-        e.send_keys(str(profit_price))
+        profit_price=mylib.unit_round(profit_price,trade_scale)
+        e.send_keys(mylib.decimal_normalize(profit_price))
 
         # OCO2 損切
         e = self.browser().find_element_by_xpath('//*[@id="doneoco2_input_trigger_price"]')
@@ -333,7 +336,8 @@ class sbi_client:
         # if(losscut_diff>profit_diff/2):
         #     losscut_diff=profit_diff/2
         losscut_price=mylib.RoundHalfUp( float(cur_price) - float(losscut_diff),0)
-        e.send_keys(str(losscut_price))
+        losscut_price=mylib.unit_round(losscut_price,trade_scale)
+        e.send_keys(mylib.decimal_normalize(losscut_price))
         e = self.browser().find_element_by_xpath('//*[@id="nariyuki_ifdoco"]')  #成行 で執行
         e.click()
 
