@@ -41,7 +41,7 @@ while True:
         if not re.match(r'\d{4}',code):
             print('non stock code')
             continue
-        sbi.ActualBuyingIFDOCO(stockCode=code,profit=0.007,losscut=0.03)
+        sbi.ActualBuyingIFDOCO(stockCode=code,profit=0.007,losscut=0.03,GyakuSashine=2)
     except Exception as e:
         print(e)
 

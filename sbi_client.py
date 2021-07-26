@@ -230,7 +230,7 @@ class sbi_client:
         # self.browser().save_screenshot(ss_name)
 
     # 現物買
-    def ActualBuyingIFDOCO(self, stockCode,quantity=0, profit:float=0.05,losscut:float=0.03):
+    def ActualBuyingIFDOCO(self, stockCode,quantity=0, profit:float=0.05,losscut:float=0.03,GyakuSashine:int=0):
         self.showInFront()
         # 現物買
         url="https://site1.sbisec.co.jp/ETGate/?" \
@@ -290,13 +290,19 @@ class sbi_client:
             kehai_price_prev=kehai_price
             # print( kehai )
         # 購入価格　決定
-        if all([sell_kehai_min, buy_kehai_max ,trade_scale]):
-            if(buy_kehai_max +trade_scale)<sell_kehai_min:
-                cur_price=buy_kehai_max + trade_scale
-            elif sell_kehai_min<cur_price:
-                cur_price=sell_kehai_min
+        if GyakuSashine>0:
+            if trade_scale<100:
+                cur_price+=(trade_scale*GyakuSashine)
             else:
-                cur_price=mylib.unit_round(cur_price,trade_scale)
+                cur_price+=GyakuSashine #1円単位としちゃう
+        else:
+            if all([sell_kehai_min, buy_kehai_max ,trade_scale]):
+                if(buy_kehai_max +trade_scale)<sell_kehai_min:
+                    cur_price=buy_kehai_max + trade_scale
+                elif sell_kehai_min<cur_price:
+                    cur_price=sell_kehai_min
+                else:
+                    cur_price=mylib.unit_round(cur_price,trade_scale)
 
         # 株数
         if( quantity<unit):
@@ -304,13 +310,24 @@ class sbi_client:
         e = self.browser().find_element_by_xpath('//*[@id="ifdoco_input_quantity"]')
         e.clear()
         e.send_keys(mylib.decimal_normalize(quantity))
-        # 指値
-        e = self.browser().find_element_by_xpath('//*[@id="sashine_ifdoco_u"]')
-        e.click()
-        # 価格
-        e = self.browser().find_element_by_xpath('//*[@id="ifoco_input_price"]')
-        e.clear()
-        e.send_keys(mylib.decimal_normalize(cur_price))
+        if GyakuSashine > 0:
+            #逆指値
+            e = self.browser().find_element_by_xpath('//*[@id="gyakusashine_ifdoco"]')
+            e.click()
+            e = self.browser().find_element_by_xpath('//*[@id="ifoco_input_trigger_price"]')
+            e.clear()
+            e.send_keys(mylib.decimal_normalize(cur_price))
+            #成り行き
+            e = self.browser().find_element_by_xpath('//*[@id="gyakusashine_nariyuki_ifdoco_u"]')
+            e.click()
+        else:
+            # 指値
+            e = self.browser().find_element_by_xpath('//*[@id="sashine_ifdoco_u"]')
+            e.click()
+            # 価格
+            e = self.browser().find_element_by_xpath('//*[@id="ifoco_input_price"]')
+            e.clear()
+            e.send_keys(mylib.decimal_normalize(cur_price))
 
         #期間
         e = self.browser().find_element_by_xpath('//input[@name="ifoco_selected_limit_in" and @value="this_day"]')
