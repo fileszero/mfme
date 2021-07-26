@@ -136,9 +136,50 @@ class mfme_client(web_client):
         self.login()
         self.browser().get(url)
 
+    def AddPaymentRecord(self,account:str,payment_date:str, name:str,amount:str,category:str,sub_category:str):
+        self.browser().get("https://moneyforward.com/accounts/show_manual/" + account)
+        self.browser().implicitly_wait(8)   #wait
+        self.clickByXPath("//button[@href='#user_asset_act_new']")
+        self.browser().implicitly_wait(7)   #wait
+
+        # 日付
+        e = self.browser().find_element_by_xpath("//input[@id='updated-at']")
+        e.clear()
+        e.send_keys(payment_date)
+        self.clickByXPath("//div[@id='amount-important']")   #close calendar
+
+        # 金額
+        e = self.browser().find_element_by_xpath("//input[@id='appendedPrependedInput']")
+        e.clear()
+        e.send_keys(amount)
+
+        #大分類
+        self.clickByXPath("//a[@id='js-large-category-selected']")
+        e = self.browser().find_element_by_xpath("//div[@id='large_category_group']")
+        cat=e.find_element_by_link_text(category)
+        cat.click()
+        #中分類
+        self.clickByXPath("//a[@id='js-middle-category-selected']")
+        e = self.browser().find_element_by_xpath("//div[@id='target-js-content-field']")
+        cat=e.find_element_by_link_text(sub_category)
+        cat.click()
+
+        # 内容
+        e = self.browser().find_element_by_xpath("//input[@id='js-content-field']")
+        e.clear()
+        e.send_keys(name)
+
+        #保存
+        self.clickByXPath("//input[@type='submit' and @id='submit-button']")
+
+        self.browser().implicitly_wait(8)   #wait
+
+
+
+
 if __name__ == '__main__':
 
-    mfme_config = mylib.get_config("me.json")
+    mfme_config = mylib.get_config("coop.jsonc")
 
     client = mfme_client(mfme_config["mfme"])
 
@@ -146,6 +187,7 @@ if __name__ == '__main__':
     # sbi.ActualBuyingIFDOCO(7513,quantity=0)
     # sbi.GetOrders()
     # sbi.openChart('5929')
-    client.chnageGroup("生活用")
+    for i in range(3):
+        client.AddPaymentRecord(mfme_config["mfme"]["account"],'2021/07/26',f"てすと{i}","123","食費","食費")
     val = input('END OF __main__')
 
