@@ -8,3 +8,5 @@ class coop_client:
         self.email = config["mail"]
         self.password = config["password"]
         self._browser=browser
+
+login = "https://ouchi.ef.cws.coop/auth/bb/login.do?relayed=1"

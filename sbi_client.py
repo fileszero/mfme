@@ -22,52 +22,14 @@ from pyvirtualdisplay import Display
 import platform
 import uuid
 
-class sbi_client:
-    _browser = None
-    _display = None
+from web_client import web_client
 
+class sbi_client(web_client):
     def __init__(self, config):
-        self.email = config["mail"]
-        self.password = config["password"]
-        self.tradePassword= config["tradePassword"]
+        super().__init__(config)
 
     def __del__(self):
-        if self._browser:
-            self._browser.close()
-        if self._display:
-            self._display.sendstop()
-            self._display.stop()
-
-    def browser(self) -> webdriver:
-        if platform.system() == 'Linux':
-            if not self._display:
-                self._display = Display(visible=0, size=(800, 600))
-                self._display.start()
-        if not self._browser:
-            self._browser = webdriver.Firefox(executable_path=mylib.get_ff_executable_path(
-            ), firefox_profile=mylib.get_ff_profile())
-        return self._browser
-
-    def showInFront(self):
-        self.browser().switch_to.window(self.browser().current_window_handle)
-        self.browser().execute_script("window.focus();")
-        # self.browser().fullscreen_window()
-
-    def waitByXPath(self, xpath):
-        WebDriverWait(self.browser(), 10).until(
-            EC.presence_of_element_located((By.XPATH, xpath)))
-
-    def clickByXPath(self, xpath):
-        WebDriverWait(self.browser(), 10).until(
-            EC.element_to_be_clickable((By.XPATH, xpath)))
-        e = self.browser().find_element_by_xpath(xpath)
-        e.click()
-
-    def inputByXPath(self, xpath,value):
-        WebDriverWait(self.browser(), 10).until(
-            EC.element_to_be_clickable((By.XPATH, xpath)))
-        e = self.browser().find_element_by_xpath(xpath)
-        e.send_keys(value)
+        super().__del__()
 
     def login(self):
         self.browser().get("https://www.sbisec.co.jp/ETGate")
