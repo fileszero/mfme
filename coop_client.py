@@ -1,12 +1,10 @@
 
 
 class coop_client:
-    _browser = None
-    _display = None
+    def __init__(self, config):
+        super().__init__(config)
 
-    def __init__(self, config,browser=None):
-        self.email = config["mail"]
-        self.password = config["password"]
-        self._browser=browser
+    def __del__(self):
+        super().__del__()
 
 login = "https://ouchi.ef.cws.coop/auth/bb/login.do?relayed=1"

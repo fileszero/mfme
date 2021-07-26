@@ -13,6 +13,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 import sqlite3
 from pyvirtualdisplay import Display
 import platform
@@ -20,8 +21,10 @@ import platform
 from web_client import web_client
 
 class mfme_client(web_client):
+    _group_name:str="グループ選択なし"
     def __init__(self, config):
         super().__init__(config)
+        self._group_name=config.get("group",self._group_name)
 
     def __del__(self):
         super().__del__()
@@ -58,6 +61,18 @@ class mfme_client(web_client):
 
         # frm = self.browser().find_element_by_name("commit")
         # frm.click()
+        #グループ変更
+        e = self.browser().find_element_by_xpath('//*[@id="group_id_hash"]')
+        select=Select(e)
+        select.select_by_visible_text( self._group_name )
+
+    def chnageGroup(self,groupName:str):
+        # Home
+        self.browser().get("https://moneyforward.com/")
+        e = self.browser().find_element_by_xpath('//*[@id="group_id_hash"]')
+        select=Select(e)
+        select.select_by_visible_text( groupName )
+
 
     def gotoYearMonth(self, year: int, month: int):
         # 家計簿
@@ -120,3 +135,17 @@ class mfme_client(web_client):
     def MFAVerify(self, url):
         self.login()
         self.browser().get(url)
+
+if __name__ == '__main__':
+
+    mfme_config = mylib.get_config("me.json")
+
+    client = mfme_client(mfme_config["mfme"])
+
+    client.login()
+    # sbi.ActualBuyingIFDOCO(7513,quantity=0)
+    # sbi.GetOrders()
+    # sbi.openChart('5929')
+    client.chnageGroup("生活用")
+    val = input('END OF __main__')
+
