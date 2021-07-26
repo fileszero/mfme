@@ -57,3 +57,8 @@ class web_client:
             EC.element_to_be_clickable((By.XPATH, xpath)))
         e = self.browser().find_element_by_xpath(xpath)
         e.send_keys(value)
+
+    def getTextByJS(self,element):
+        script = "return arguments[0].innerText"
+        txt=self.browser().execute_script(script,element)
+        return txt

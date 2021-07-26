@@ -1,3 +1,7 @@
+import datetime
+import re
+from mfme_client import mfme_client
+from os import replace
 import mylib
 
 from web_client import web_client
@@ -39,32 +43,44 @@ class coop_client(web_client):
         self.browser().get("https://ouchi.ef.cws.coop/ec/bb/ecTopInit.do")
         self.clickByXPath("//a[@title='ご注文履歴' and contains(text(), 'ご注文履歴')]")
 
-        close_date=self.browser().find_element_by_xpath("//div[@class='close_date']")
+        close_date_ele=self.browser().find_element_by_xpath("//div[@class='close_date']")
+        close_date_txt=self.getTextByJS(close_date_ele)
+        m = re.search(r'(\d+)月(\d+)日', close_date_txt).groups()
+        today = datetime.date.today()
+        close_date=datetime.date(today.year,int(m[0]),int(m[1]))
+        # print(f"{close_date:%Y/%m/%d}")
 
         e=self.browser().find_element_by_xpath("//table[@class='standard']")
 
         rows = e.find_elements_by_xpath("//tr[@class='row_add' or @class='row_even']")
+        recs=[]
         for row in rows:
             cols=row.find_elements_by_xpath('td')
             name=row.find_element_by_xpath("td/p[@class='name_clm']").text
-            price=row.find_element_by_xpath("td[@class='price_clm']").text
-            qty=row.find_element_by_xpath("td[@class='quantity_clm']").text
-            amount=row.find_element_by_xpath("td[@class='amount_clm']").text
-            print(name)
-            print(price)
-            print(qty)
-            print(amount)
+            price_txt:str=row.find_element_by_xpath("td[@class='price_clm']").text
+            price=mylib.to_int(price_txt.replace('円',''))
+            qty_txt=row.find_element_by_xpath("td[@class='quantity_clm']").text
+            qty=mylib.to_int(qty_txt)
+            amount_txt=row.find_element_by_xpath("td[@class='amount_clm']").text
+            amount=mylib.to_int(amount_txt.replace('円',''))
+            rec={"name":name,"price":price,"qty":qty,"amount":amount,"close_date":close_date}
+            recs.append(rec)
+            # print(rec)
+        return recs
 
 if __name__ == '__main__':
 
     config = mylib.get_config("coop.jsonc")
 
-    client = coop_client(config["coop"])
+    c_client = coop_client(config["coop"])
 
-    client.login()
-    client.getOrderHistory()
-    # sbi.ActualBuyingIFDOCO(7513,quantity=0)
-    # sbi.GetOrders()
-    # sbi.openChart('5929')
+    c_client.login()
+    orders=c_client.getOrderHistory()
+
+    for order in orders:
+        print(order)
+    # m_client = mfme_client(config["mfme"])
+    # m_client.login()
+
     val = input('END OF __main__')
 
