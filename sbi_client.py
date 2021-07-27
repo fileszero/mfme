@@ -25,8 +25,10 @@ import uuid
 from web_client import web_client
 
 class sbi_client(web_client):
+    tradePassword:str
     def __init__(self, config):
         super().__init__(config)
+        self.tradePassword=config["tradePassword"]
 
     def __del__(self):
         super().__del__()
