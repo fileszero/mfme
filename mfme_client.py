@@ -5,6 +5,7 @@
 import os
 import json
 import datetime
+import time
 from dateutil.relativedelta import relativedelta
 import mylib
 
@@ -136,16 +137,18 @@ class mfme_client(web_client):
         self.login()
         self.browser().get(url)
 
-    def AddPaymentRecord(self,account:str,payment_date:str, name:str,amount:str,category:str,sub_category:str):
-        self.browser().get("https://moneyforward.com/accounts/show_manual/" + account)
+    def AddPaymentRecord(self,account:str,payment_date:datetime.date, name:str,amount:str,category:str,sub_category:str):
+        print(name)
         self.browser().implicitly_wait(8)   #wait
+        url="https://moneyforward.com/accounts/show_manual/" + account
+        self.browser().get(url)
         self.clickByXPath("//button[@href='#user_asset_act_new']")
         self.browser().implicitly_wait(7)   #wait
 
         # 日付
         e = self.browser().find_element_by_xpath("//input[@id='updated-at']")
         e.clear()
-        e.send_keys(payment_date)
+        e.send_keys(f"{payment_date:%Y/%m/%d}")
         self.clickByXPath("//div[@id='amount-important']")   #close calendar
 
         # 金額
@@ -171,10 +174,12 @@ class mfme_client(web_client):
 
         #保存
         self.clickByXPath("//input[@type='submit' and @id='submit-button']")
+        # 3秒待機
+        time.sleep(3)
 
         self.browser().implicitly_wait(8)   #wait
-
-
+        self.browser().get(url)
+        self.browser().implicitly_wait(3)   #wait
 
 
 if __name__ == '__main__':
@@ -188,6 +193,6 @@ if __name__ == '__main__':
     # sbi.GetOrders()
     # sbi.openChart('5929')
     for i in range(3):
-        client.AddPaymentRecord(mfme_config["mfme"]["account"],'2021/07/26',f"てすと{i}","123","食費","食費")
+        client.AddPaymentRecord(mfme_config["mfme"]["account"],datetime.date(2021,7,26),f"てすと{i}","123","食費","食費")
     val = input('END OF __main__')
 

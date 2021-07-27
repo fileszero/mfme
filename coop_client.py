@@ -1,11 +1,26 @@
 import datetime
 import re
+from typing import Dict, Tuple, List
+
 from mfme_client import mfme_client
 from os import replace
 import mylib
 
 from web_client import web_client
 
+class order_item:
+    name:str = ''
+    price:int = 0
+    qty:int = 0
+    amount:int=0
+    close_date:datetime.date=None
+    def __init__(self,name:str,price:int,qty:int,amount:int,close_date:datetime.date ):
+        self.name=name
+        self.price=price
+        self.qty=qty
+        self.amount=amount
+        self.close_date=close_date
+        # rec={"name":name,"price":price,"qty":qty,"amount":amount,"close_date":close_date}
 
 class coop_client(web_client):
     def __init__(self, config):
@@ -38,7 +53,7 @@ class coop_client(web_client):
         # ログインボタンを押す
         self.clickByXPath("//input[@type='submit' and @value='ログイン']")
 
-    def getOrderHistory(self):
+    def getOrderHistory(self) -> List[order_item]:
         # go home
         self.browser().get("https://ouchi.ef.cws.coop/ec/bb/ecTopInit.do")
         self.clickByXPath("//a[@title='ご注文履歴' and contains(text(), 'ご注文履歴')]")
@@ -63,10 +78,11 @@ class coop_client(web_client):
             qty=mylib.to_int(qty_txt)
             amount_txt=row.find_element_by_xpath("td[@class='amount_clm']").text
             amount=mylib.to_int(amount_txt.replace('円',''))
-            rec={"name":name,"price":price,"qty":qty,"amount":amount,"close_date":close_date}
+            rec=order_item(name,price,qty,amount,close_date)
             recs.append(rec)
             # print(rec)
         return recs
+
 
 if __name__ == '__main__':
 
@@ -77,10 +93,14 @@ if __name__ == '__main__':
     c_client.login()
     orders=c_client.getOrderHistory()
 
+    m_client = mfme_client(config["mfme"])
+    m_client.login()
     for order in orders:
         print(order)
-    # m_client = mfme_client(config["mfme"])
-    # m_client.login()
+        name_surfix=""
+        if order.qty>1:
+            name_surfix=f" ×{order.qty}"
+        m_client.AddPaymentRecord(config["mfme"]["account"],order.close_date,order.name+name_surfix,order.amount,"食費","食費")
 
     val = input('END OF __main__')
 
