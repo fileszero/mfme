@@ -195,6 +195,7 @@ class sbi_client(web_client):
 
     # 現物買
     def ActualBuyingIFDOCO(self, stockCode,quantity=0, profit:float=0.05,losscut:float=0.03,GyakuSashine:int=0):
+        print(f"======================== ActualBuyingIFDOCO ========================")
         self.showInFront()
         # 現物買
         url="https://site1.sbisec.co.jp/ETGate/?" \
@@ -214,14 +215,13 @@ class sbi_client(web_client):
 
         # 銘柄名
         e = self.browser().find_element_by_xpath('//h3/span[@style="font-weight:bold;font-size:18px;"]')
-        print(e.text)
-
+        print(f"[{e.text}]")
 
         # 売買単位
         e = self.browser().find_element_by_xpath('//td[contains(text(), "売買単位")]')
         innerHtml=self.browser().execute_script("return arguments[0].innerHTML",e)
         unit = int(re.findall(r'売買単位：\s*(\d+)\s*<',innerHtml)[0])
-        print(unit)
+        # print(unit)
 
         # autoUpdateXPath='//*[@id="imgRefArea_MTB0" and @title="稼働"]'
         # e = self.browser().find_elements_by_xpath(autoUpdateXPath)
@@ -254,6 +254,8 @@ class sbi_client(web_client):
             kehai_price_prev=kehai_price
             # print( kehai )
         # 購入価格　決定
+        print(f"  現在値:{cur_price} 売気配：{sell_kehai_min} 買気配:{buy_kehai_max} 呼値刻み:{trade_scale}　 売買単位：{unit}")
+
         if GyakuSashine>0:
             if trade_scale<100:
                 cur_price+=(trade_scale*GyakuSashine)
@@ -308,7 +310,9 @@ class sbi_client(web_client):
         # if(profit_diff>50):
         #     profit_diff = 50
         profit_price=mylib.RoundHalfUp( float(cur_price) + float(profit_diff),0)
-        profit_price=mylib.unit_round(profit_price,trade_scale)
+        profit_price=mylib.unit_ceil(profit_price,trade_scale)
+        if(GyakuSashine>0):
+            profit_price+=trade_scale   #成り行き分追加
         e.send_keys(mylib.decimal_normalize(profit_price))
 
         # OCO2 損切
@@ -321,6 +325,8 @@ class sbi_client(web_client):
         e.send_keys(mylib.decimal_normalize(losscut_price))
         e = self.browser().find_element_by_xpath('//*[@id="nariyuki_ifdoco"]')  #成行 で執行
         e.click()
+
+        print(f"購入価格:{cur_price} 利確:{profit_price} 損切:{losscut_price}")
 
         #期間
         e = self.browser().find_element_by_xpath('//input[@name="doneoco_selected_limit_in" and @value="kikan"]')   #期間指定
@@ -338,6 +344,7 @@ class sbi_client(web_client):
 
         # 注文確認画面へ
         self.clickByXPath('//a[@id="botton1"]')
+        print(f"====================================================================")
 
         # 記録
         # ss_name=f"{stockCode}_.png"

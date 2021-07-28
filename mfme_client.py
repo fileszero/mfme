@@ -5,6 +5,7 @@
 import os
 import json
 import datetime
+import re
 import time
 from dateutil.relativedelta import relativedelta
 import mylib
@@ -19,7 +20,24 @@ import sqlite3
 from pyvirtualdisplay import Display
 import platform
 
+from typing import List
+
 from web_client import web_client
+class PaymentRecord:
+    account:str
+    payment_date:datetime.date
+    name:str
+    amount:int
+    category:str
+    sub_category:str
+
+    def __init__(self,account:str,payment_date:datetime.date, name:str,amount:int,category:str,sub_category:str) -> None:
+        self.account=account
+        self.payment_date=payment_date
+        self.name=name
+        self.amount=amount
+        self.category=category
+        self.sub_category=sub_category
 
 class mfme_client(web_client):
     _group_name:str="グループ選択なし"
@@ -137,49 +155,60 @@ class mfme_client(web_client):
         self.login()
         self.browser().get(url)
 
-    def AddPaymentRecord(self,account:str,payment_date:datetime.date, name:str,amount:str,category:str,sub_category:str):
-        print(name)
+    def AddPaymentRecord(self,recs:List[PaymentRecord]):
         self.browser().implicitly_wait(8)   #wait
-        url="https://moneyforward.com/accounts/show_manual/" + account
+        # url="https://moneyforward.com/accounts/show_manual/" + account
+        url="https://moneyforward.com/cf"
         self.browser().get(url)
         self.clickByXPath("//button[@href='#user_asset_act_new']")
         self.browser().implicitly_wait(7)   #wait
 
-        # 日付
-        e = self.browser().find_element_by_xpath("//input[@id='updated-at']")
-        e.clear()
-        e.send_keys(f"{payment_date:%Y/%m/%d}")
-        self.clickByXPath("//div[@id='amount-important']")   #close calendar
+        for rec in recs:
+            print(rec.name)
+            # 日付
+            e = self.browser().find_element_by_xpath("//input[@id='updated-at']")
+            e.clear()
+            e.send_keys(f"{rec.payment_date:%Y/%m/%d}")
+            self.clickByXPath("//div[@id='amount-important']")   #close calendar
 
-        # 金額
-        e = self.browser().find_element_by_xpath("//input[@id='appendedPrependedInput']")
-        e.clear()
-        e.send_keys(amount)
+            # 金額
+            e = self.browser().find_element_by_xpath("//input[@id='appendedPrependedInput']")
+            e.clear()
+            e.send_keys(rec.amount)
 
-        #大分類
-        self.clickByXPath("//a[@id='js-large-category-selected']")
-        e = self.browser().find_element_by_xpath("//div[@id='large_category_group']")
-        cat=e.find_element_by_link_text(category)
-        cat.click()
-        #中分類
-        self.clickByXPath("//a[@id='js-middle-category-selected']")
-        e = self.browser().find_element_by_xpath("//div[@id='target-js-content-field']")
-        cat=e.find_element_by_link_text(sub_category)
-        cat.click()
+            #支払い元（財布）
+            e = self.browser().find_element_by_xpath("//select[@id='user_asset_act_sub_account_id_hash']")
+            account_selector=Select(e)
+            for idx,option in enumerate(account_selector.options):
+                if option.text[:len(rec.account)]==rec.account: # 選択肢のテキスト
+                    account_selector.select_by_index(idx)
+                    break
 
-        # 内容
-        e = self.browser().find_element_by_xpath("//input[@id='js-content-field']")
-        e.clear()
-        e.send_keys(name)
 
-        #保存
-        self.clickByXPath("//input[@type='submit' and @id='submit-button']")
-        # 3秒待機
-        time.sleep(3)
 
-        self.browser().implicitly_wait(8)   #wait
-        self.browser().get(url)
-        self.browser().implicitly_wait(3)   #wait
+            #大分類
+            self.clickByXPath("//a[@id='js-large-category-selected']")
+            e = self.browser().find_element_by_xpath("//div[@id='large_category_group']")
+            cat=e.find_element_by_link_text(rec.category)
+            cat.click()
+            #中分類
+            self.clickByXPath("//a[@id='js-middle-category-selected']")
+            e = self.browser().find_element_by_xpath("//div[@id='target-js-content-field']")
+            cat=e.find_element_by_link_text(rec.sub_category)
+            cat.click()
+
+            # 内容
+            e = self.browser().find_element_by_xpath("//input[@id='js-content-field']")
+            e.clear()
+            e.send_keys(rec.name)
+
+            #保存
+            self.clickByXPath("//input[@type='submit' and @id='submit-button']")
+            # 3秒待機
+            # time.sleep(3)
+            self.clickByXPath("//input[@type='button' and @id='confirmation-button']")  #続けて入力する
+
+        self.clickByXPath("//div[@class='close' and @type='button' and @data-dismiss='modal']")
 
 
 if __name__ == '__main__':
@@ -192,7 +221,9 @@ if __name__ == '__main__':
     # sbi.ActualBuyingIFDOCO(7513,quantity=0)
     # sbi.GetOrders()
     # sbi.openChart('5929')
+    data=[]
     for i in range(3):
-        client.AddPaymentRecord(mfme_config["mfme"]["account"],datetime.date(2021,7,26),f"てすと{i}","123","食費","食費")
+        data.append(PaymentRecord(mfme_config["mfme"]["account"],datetime.date(2021,7,27),f"てすと{i}","123","食費","食費"))
+    client.AddPaymentRecord(data)
     val = input('END OF __main__')
 

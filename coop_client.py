@@ -2,7 +2,7 @@ import datetime
 import re
 from typing import Dict, Tuple, List
 
-from mfme_client import mfme_client
+from mfme_client import PaymentRecord, mfme_client
 from os import replace
 import mylib
 
@@ -93,14 +93,16 @@ if __name__ == '__main__':
     c_client.login()
     orders=c_client.getOrderHistory()
 
-    m_client = mfme_client(config["mfme"])
-    m_client.login()
+    mf_payments:List[PaymentRecord]=[]
     for order in orders:
-        print(order)
         name_surfix=""
         if order.qty>1:
             name_surfix=f" ×{order.qty}"
-        m_client.AddPaymentRecord(config["mfme"]["account"],order.close_date,order.name+name_surfix,order.amount,"食費","食費")
+        mf_payments.append(PaymentRecord(config["mfme"]["account"],order.close_date,order.name+name_surfix,order.amount,"食費","食費"))
+
+    m_client = mfme_client(config["mfme"])
+    m_client.login()
+    m_client.AddPaymentRecord(mf_payments)
 
     val = input('END OF __main__')
 
