@@ -7,6 +7,7 @@ import json
 import datetime
 import math
 import re
+from typing import List
 from dateutil.relativedelta import relativedelta
 import mylib
 from decimal import Decimal
@@ -23,6 +24,8 @@ import platform
 import uuid
 
 from web_client import web_client
+
+import sbi_models
 
 class sbi_client(web_client):
     tradePassword:str
@@ -407,6 +410,26 @@ class sbi_client(web_client):
             total += price
         return total
 
+    def GetTopGrowth(self)-> List[sbi_models.GrowthRecord]:
+        url="https://site1.sbisec.co.jp/ETGate/?_ControlID=WPLETmgR001Control&_PageID=WPLETmgR001Mdtl20&_DataStoreID=DSWPLETmgR001Control&_ActionID=DefaultAID&burl=iris_ranking&cat1=market&cat2=ranking&dir=tl1-rnk%7Ctl2-stock%7Ctl3-price%7Ctl4-uprate%7Ctl5-priceview%7Ctl7-T1&file=index.html&getFlg=on"
+        self.browser().get(url)
+
+        table=self.browser().find_element_by_xpath('//table[@class="md-table06"]')
+        rows=table.find_elements_by_xpath('tbody/tr')
+        recs:List[sbi_models.GrowthRecord]=[]
+        for idx, row in enumerate(rows[1:]):
+
+            cols=row.find_elements_by_tag_name('td')
+            rec=sbi_models.GrowthRecord()
+            rec.stock_name=cols[1].text.split()[0]
+            rec.stock_code=cols[1].text.split()[1]
+            rec.price=mylib.to_dec(cols[2].text)
+            rec.growth_price=mylib.to_dec(cols[3].text.split()[0])
+            rec.growth_per=mylib.to_dec(cols[3].text.split()[1].replace('％', ''))
+            recs.append(rec)
+            # print(cols[1])
+        return recs
+
 if __name__ == '__main__':
 
     sbi_config = mylib.get_config("sbi.jsonc")
@@ -417,7 +440,11 @@ if __name__ == '__main__':
     # sbi.ActualBuyingIFDOCO(7513,quantity=0)
     # sbi.GetOrders()
     # sbi.openChart('5929')
-    total=sbi.GetActualExecutionPriceOfToday()
-    print(total)
+
+    # total=sbi.GetActualExecutionPriceOfToday()
+    # print(total)
+
+    growth=sbi.GetTopGrowth()
+    print(growth)
 
     val = input('END OF __main__')

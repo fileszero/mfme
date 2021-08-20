@@ -5,6 +5,7 @@ from typing import Dict, Tuple, List
 from mfme_client import PaymentRecord, mfme_client
 from os import replace
 import mylib
+from selenium.webdriver.support.select import Select
 
 from web_client import web_client
 
@@ -53,10 +54,15 @@ class coop_client(web_client):
         # ログインボタンを押す
         self.clickByXPath("//input[@type='submit' and @value='ログイン']")
 
-    def getOrderHistory(self) -> List[order_item]:
+    def getOrderHistory(self,week_no="") -> List[order_item]:
         # go home
         self.browser().get("https://ouchi.ef.cws.coop/ec/bb/ecTopInit.do")
         self.clickByXPath("//a[@title='ご注文履歴' and contains(text(), 'ご注文履歴')]")
+
+        if week_no !="":
+            history_selector=Select(self.browser().find_element_by_xpath("//select[@name='history']"))
+            history_selector.select_by_value(week_no)
+            self.clickByXPath("//input[@type='button' and @class='button reload']")
 
         close_date_ele=self.browser().find_element_by_xpath("//div[@class='close_date']")
         close_date_txt=self.getTextByJS(close_date_ele)
@@ -100,6 +106,7 @@ if __name__ == '__main__':
             name_surfix=f" ×{order.qty}"
         mf_payments.append(PaymentRecord(config["mfme"]["account"],order.close_date,order.name+name_surfix,order.amount,"食費","食費"))
 
+    print(mf_payments)
     m_client = mfme_client(config["mfme"])
     m_client.login()
     m_client.AddPaymentRecord(mf_payments)
