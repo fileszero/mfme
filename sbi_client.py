@@ -37,7 +37,8 @@ class sbi_client(web_client):
         super().__del__()
 
     def login(self):
-        self.browser().get("https://www.sbisec.co.jp/ETGate")
+        # self.browser().get("https://www.sbisec.co.jp/ETGate")
+        self.browser().get("https://site1.sbisec.co.jp/ETGate/?_ControlID=WPLETacR001Control&_PageID=DefaultPID&_DataStoreID=DSWPLETacR001Control&_ActionID=DefaultAID&getFlg=on")
         # self.browser().get("https://id.moneyforward.com/sign_in/email")
         # already_login = self.browser().find_elements_by_xpath(
         #     "//div[contains(@class,'alert-success')][contains(text(), '既にログインしています')]")
@@ -411,24 +412,43 @@ class sbi_client(web_client):
         return total
 
     def GetTopGrowth(self)-> List[sbi_models.GrowthRecord]:
-        url="https://site1.sbisec.co.jp/ETGate/?_ControlID=WPLETmgR001Control&_PageID=WPLETmgR001Mdtl20&_DataStoreID=DSWPLETmgR001Control&_ActionID=DefaultAID&burl=iris_ranking&cat1=market&cat2=ranking&dir=tl1-rnk%7Ctl2-stock%7Ctl3-price%7Ctl4-uprate%7Ctl5-priceview%7Ctl7-T1&file=index.html&getFlg=on"
-        self.browser().get(url)
-
-        table=self.browser().find_element_by_xpath('//table[@class="md-table06"]')
-        rows=table.find_elements_by_xpath('tbody/tr')
+        pages=[
+            {'market':"東証１部",'url':"https://site1.sbisec.co.jp/ETGate/?_ControlID=WPLETmgR001Control&_PageID=WPLETmgR001Mdtl20&_DataStoreID=DSWPLETmgR001Control&_ActionID=DefaultAID&burl=iris_ranking&cat1=market&cat2=ranking&dir=tl1-rnk%7Ctl2-stock%7Ctl3-price%7Ctl4-uprate%7Ctl5-priceview%7Ctl7-T1&file=index.html&getFlg=on"},
+            {'market':"東証２部",'url':"https://site1.sbisec.co.jp/ETGate/?_ControlID=WPLETmgR001Control&_PageID=WPLETmgR001Mdtl20&_DataStoreID=DSWPLETmgR001Control&_ActionID=DefaultAID&burl=iris_ranking&cat1=market&cat2=ranking&dir=tl1-rnk%7Ctl2-stock%7Ctl3-price%7Ctl4-uprate%7Ctl5-priceview%7Ctl7-T2&file=index.html&getFlg=on"},
+            {'market':"JASDAQ", 'url':"https://site1.sbisec.co.jp/ETGate/?_ControlID=WPLETmgR001Control&_PageID=WPLETmgR001Mdtl20&_DataStoreID=DSWPLETmgR001Control&_ActionID=DefaultAID&burl=iris_ranking&cat1=market&cat2=ranking&dir=tl1-rnk%7Ctl2-stock%7Ctl3-price%7Ctl4-uprate%7Ctl5-priceview%7Ctl7-JQ&file=index.html&getFlg=on"},
+            {'market':"東証マザーズ", 'url':"https://site1.sbisec.co.jp/ETGate/?_ControlID=WPLETmgR001Control&_PageID=WPLETmgR001Mdtl20&_DataStoreID=DSWPLETmgR001Control&_ActionID=DefaultAID&burl=iris_ranking&cat1=market&cat2=ranking&dir=tl1-rnk%7Ctl2-stock%7Ctl3-price%7Ctl4-uprate%7Ctl5-priceview%7Ctl7-TM&file=index.html&getFlg=on"},
+        ]
         recs:List[sbi_models.GrowthRecord]=[]
-        for idx, row in enumerate(rows[1:]):
+        for page in pages:
+            url=page["url"]
+            market=page["market"]
+            self.browser().get(url)
 
-            cols=row.find_elements_by_tag_name('td')
-            rec=sbi_models.GrowthRecord()
-            rec.stock_name=cols[1].text.split()[0]
-            rec.stock_code=cols[1].text.split()[1]
-            rec.price=mylib.to_dec(cols[2].text)
-            rec.growth_price=mylib.to_dec(cols[3].text.split()[0])
-            rec.growth_per=mylib.to_dec(cols[3].text.split()[1].replace('％', ''))
-            recs.append(rec)
-            # print(cols[1])
+            table=self.browser().find_element_by_xpath('//table[@class="md-table06"]')
+            rows=table.find_elements_by_xpath('tbody/tr')
+            for idx, row in enumerate(rows):
+
+                cols=row.find_elements_by_tag_name('td')
+                rec=sbi_models.GrowthRecord()
+                rec.stock_name=cols[1].text.split('\n')[0]
+                rec.stock_code=cols[1].text.split('\n')[1]
+                rec.market=market
+                rec.price=mylib.to_dec(cols[2].text)
+                rec.growth_price=mylib.to_dec(cols[3].text.split()[0])
+                rec.growth_per=mylib.to_dec(cols[3].text.split()[1].replace('％', ''))
+                recs.append(rec)
+                # print(cols[1])
+
         return recs
+
+    def GetHashCode(self)-> str:
+        url="https://site1.sbisec.co.jp/ETGate/?_ControlID=WPLETmgR001Control&_PageID=WPLETmgR001Mdtl20&_DataStoreID=DSWPLETmgR001Control&_ActionID=DefaultAID&burl=iris_top&cat1=market&cat2=top&dir=tl1-top%7Ctl2-map%7Ctl5-jpn&file=index.html&getFlg=on"
+        self.browser().get(url)
+        img=self.browser().find_element_by_xpath('//img[starts-with(@src,"https://chart.iris.sbisec.co.jp/sbi/gchart/gc1/CHART.cgi")]')
+        src=img.get_attribute("src")
+        hash=re.search("[?&]hash=([^?&]+)",src).group(1)
+        return hash
+
 
 if __name__ == '__main__':
 
@@ -444,7 +464,10 @@ if __name__ == '__main__':
     # total=sbi.GetActualExecutionPriceOfToday()
     # print(total)
 
-    growth=sbi.GetTopGrowth()
-    print(growth)
+    # growth=sbi.GetTopGrowth()
+    # print(growth)
+
+    hash=sbi.GetHashCode()
+    print(hash)
 
     val = input('END OF __main__')

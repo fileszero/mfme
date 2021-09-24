@@ -97,7 +97,7 @@ if __name__ == '__main__':
     c_client = coop_client(config["coop"])
 
     c_client.login()
-    orders=c_client.getOrderHistory()
+    orders=c_client.getOrderHistory("2021083")
 
     mf_payments:List[PaymentRecord]=[]
     for order in orders:

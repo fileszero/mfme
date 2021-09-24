@@ -28,6 +28,7 @@ while True:
             print(f.read())
 
         val = input('現物買 IFDOCO Enter Code:')
+        sbi.login()
         params= val.split()
         #reload params
         sbi_config = mylib.get_config("sbi.jsonc")

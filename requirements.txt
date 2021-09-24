@@ -20,3 +20,6 @@ slackclient
 ### GET HTML
 requests
 beautifulsoup4
+
+### Database
+mysqlclient

@@ -1,0 +1,42 @@
+<html><title>値上がり率上位</title>
+<link rel="icon" href="favicon.ico" id="favicon">
+
+<link rel="stylesheet" href="./style.css">
+<!-- <script src="https://cdn.jsdelivr.net/npm/vue@2"></script> -->
+<script src="https://unpkg.com/vue@next"></script>
+<script src="./top_growth_data.js"></script>
+
+<body>
+  <div id="app">
+      <input v-model="sbiChartHash" placeholder="SBI chart hash">
+      Update : {{updatetime.toLocaleString()}}<br>
+      {{updateCommand}}
+      <hr>
+      <label v-for="(market,idx) in Markets">
+        <input type="checkbox" v-bind:value="market" v-model="checkedFlags">
+        <span v-bind:class="idx">{{market}}</span>
+      </label>
+
+      <div class="stock" v-for="stock in FilterdStocks()">
+        <div class="stock_name">
+          <h3>
+            <span>[{{stock.stock_code}}]</span>&nbsp;
+            <a v-bind:href="SBILink(stock.stock_code)" target=_blank>{{stock.stock_name}}</a>
+          </h3>
+
+        </div>
+        <div>
+            <div style="float: left">
+              Price:{{stock.price}}<br>
+              Markte:{{stock.market}}<br>
+              値上がり率:{{stock.growth_per}}%<br>
+              <img v-if="sbiChartHash"  class="sbiChart"  v-bind:src="SBI5MinChart(stock.stock_code,sbiChartHash)"/>
+            </div>
+            <img v-if="sbiChartHash"    v-bind:src="SBI6MonthChart(stock.stock_code,sbiChartHash)"/>
+        </div>
+        <hr>
+      </div>
+  </div>
+  <script src="./top_growth.js"></script>
+
+</body></html>

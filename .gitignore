@@ -9,3 +9,5 @@ ss_*.png
 sbi.json
 sbi.jsonc
 coop.jsonc
+charts/top_growth_data.js
+settings.py
