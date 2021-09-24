@@ -5,6 +5,7 @@ from decimal import Decimal
 
 import mylib
 import sbi_client
+import mysql
 
 # date, datetimeの変換関数
 def json_serial(obj):
@@ -29,6 +30,20 @@ sbi.login()
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sbi_hash=sbi.GetHashCode()
 growth=sbi.GetTopGrowth()
+# set additional stock info.
+con=mysql.create_connection()
+for stock in growth:
+    SQL=f"SELECT trading_unit from stock_codes where code='{stock.stock_code}'"
+    cur=con.cursor()
+    cur.execute(SQL)
+    rows=cur.fetchall()
+    cur.close()
+    if len(rows)!=0:
+        stock.trading_unit=rows[0][0]
+    else:
+        stock.trading_unit=100
+con.close()
+
 js_file = os.path.join(*[script_dir, "charts","top_growth_data.js"])
 with open(js_file, 'w',encoding="UTF-8") as f:
     js=f'top_growth={json.dumps(growth,default=json_serial, indent=2, ensure_ascii=False)};\n'

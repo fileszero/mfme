@@ -8,4 +8,5 @@ class GrowthRecord:
     price:Decimal
     growth_price:Decimal
     growth_per:Decimal
+    trading_unit:int
 
