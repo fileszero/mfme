@@ -16,6 +16,9 @@
         <input type="checkbox" v-bind:value="market" v-model="checkedFlags">
         <span v-bind:class="idx">{{market}}</span>
       </label>
+      投資金額:{
+        <input type="number" v-model='InvestamtFrom' class='investamt'>万円 ~ <input type="number" v-model='InvestamtTo' class='investamt'>万円
+      }
 
       <div class="stock" v-for="stock in FilterdStocks()">
         <div class="stock_name">

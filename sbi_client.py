@@ -7,7 +7,7 @@ import json
 import datetime
 import math
 import re
-from typing import List
+from typing import List, Tuple
 from dateutil.relativedelta import relativedelta
 import mylib
 from decimal import Decimal
@@ -29,9 +29,11 @@ import sbi_models
 
 class sbi_client(web_client):
     tradePassword:str
+    freeETF:List[str]=[]
     def __init__(self, config):
         super().__init__(config)
         self.tradePassword=config["tradePassword"]
+        self.freeETF=config["freeETF"]
 
     def __del__(self):
         super().__del__()
@@ -387,8 +389,11 @@ class sbi_client(web_client):
         "&investor=customer"
         self.browser().get(url)
 
+    def is_freeETF(self, code):
+        return code in self.freeETF
+
     # 現物約定代金合計を取得
-    def GetActualExecutionPriceOfToday(self):
+    def GetActualExecutionPriceOfToday(self) -> Tuple[int,int,int]:
         url="https://site1.sbisec.co.jp/ETGate/WPLETagR001Control/DefaultPID/DefaultAID"
         self.browser().get(url)
         self.clickByXPath('//a[contains(text(),"国内株式(現物)") and @class="wlink"]')
@@ -398,18 +403,28 @@ class sbi_client(web_client):
         table=col.find_element_by_xpath('../..')
         rows=table.find_elements_by_xpath('tr')
         total:int = 0
+        billable:int =0
+        free:int =0
         for idx, row in enumerate(rows[1:]):
             cols=row.find_elements_by_tag_name('td')
             col_offset=0
-            if len(cols)!=9:
+            if len(cols)!=9:    #二行目
                 col_offset=-1
+            else:
+                innerHTML=cols[0].get_attribute("innerHTML")
+                stock_code=innerHTML.split('<br>')[1]
+
             buy_sell_cell=cols[1+col_offset]
             price_cell=cols[7+col_offset]
 
             price=mylib.to_int(price_cell.text.split()[0])
             # print(price)
             total += price
-        return total
+            if self.is_freeETF(stock_code):
+                free += price
+            else:
+                billable += price
+        return total,billable,free
 
     def GetTopGrowth(self)-> List[sbi_models.GrowthRecord]:
         pages=[
@@ -461,13 +476,13 @@ if __name__ == '__main__':
     # sbi.GetOrders()
     # sbi.openChart('5929')
 
-    # total=sbi.GetActualExecutionPriceOfToday()
-    # print(total)
+    total,billable,free=sbi.GetActualExecutionPriceOfToday()
+    print(f"total:{total} billable:{billable} free:{free}")
 
     # growth=sbi.GetTopGrowth()
     # print(growth)
 
-    hash=sbi.GetHashCode()
-    print(hash)
+    # hash=sbi.GetHashCode()
+    # print(hash)
 
     val = input('END OF __main__')

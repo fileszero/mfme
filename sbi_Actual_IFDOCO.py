@@ -33,8 +33,8 @@ while True:
         #reload params
         sbi_config = mylib.get_config("sbi.jsonc")
         if len(params)==0:
-            total = sbi.GetActualExecutionPriceOfToday()
-            print(f"当日約定代金合計: {total/10000} 万円" )
+            total,billable,free = sbi.GetActualExecutionPriceOfToday()
+            print(f"当日約定代金  手数料対象:{billable/10000:.1f} 万円 Free:{free/10000:.1f} 万円 合計: {total/10000:.1f} 万円" )
             continue
 
         code= params[0].strip()
@@ -42,7 +42,12 @@ while True:
         if not re.match(r'\d{4}',code):
             print('non stock code')
             continue
-        sbi.ActualBuyingIFDOCO(stockCode=code,profit=0.007,losscut=0.03,GyakuSashine=2)
+        quantity=0
+        # special logics
+        if(code in ["1360","2516"]):    #日経平均ベア２倍上場投信, 東証マザーズＥＴＦ
+            quantity=100
+
+        sbi.ActualBuyingIFDOCO(stockCode=code,quantity=quantity, profit=0.007,losscut=0.03,GyakuSashine=2)
     except Exception as e:
         print(e)
 

@@ -15,27 +15,27 @@ var app = Vue.createApp({
     },
     mounted() {
       this.sbiChartHash = hash_code||localStorage.sbiChartHash||null;
-      this.checkedFlags = JSON.parse(localStorage.getItem('checkedFlags')) || [];
-      this.FlagFilterMode= localStorage.FlagFilterMode||"OR";
-      this.InvestamtFrom= localStorage.InvestamtFrom||NaN;
-      this.InvestamtTo= localStorage.InvestamtTo||NaN;
+      this.checkedFlags = JSON.parse(localStorage.getItem('top_growth_checkedFlags')) || [];
+      this.FlagFilterMode= localStorage.top_growth_FlagFilterMode||"OR";
+      this.InvestamtFrom= localStorage.top_growth_InvestamtFrom||NaN;
+      this.InvestamtTo= localStorage.top_growth_InvestamtTo||NaN;
     },
     watch: {
       sbiChartHash(newVal) {
         localStorage.sbiChartHash = newVal;
       },
       FlagFilterMode(newVal) {
-        localStorage.FlagFilterMode = newVal;
+        localStorage.top_growth_FlagFilterMode = newVal;
       },
       InvestamtFrom(newVal){
-        localStorage.InvestamtFrom = newVal;
+        localStorage.top_growth_InvestamtFrom = newVal;
       },
       InvestamtTo(newVal){
-        localStorage.InvestamtTo = newVal;
+        localStorage.top_growth_InvestamtTo = newVal;
       },
       checkedFlags:{
           handler(val, oldVal){
-            localStorage.setItem('checkedFlags', JSON.stringify(this.checkedFlags));
+            localStorage.setItem('top_growth_checkedFlags', JSON.stringify(this.checkedFlags));
           },
           deep:true
       }
@@ -62,7 +62,6 @@ var app = Vue.createApp({
             // フラグでフィルター
             return this.checkedFlags.some((f)=>st.market==f);
         });
-        return list.sort((a,b)=>parseFloat(b.growth_per)-parseFloat(a.growth_per));
 
         // list=this.stocks.filter((st)=>{
           //     // フラグでフィルター
@@ -73,25 +72,26 @@ var app = Vue.createApp({
           //       return this.checkedFlags.some((f)=>st.flags[f]);
           //     }
           // });
-          // //金額フィルター
-          // if(this.InvestamtFrom){
-          //   list=list.filter((st)=>{
-          //     return this.TradingPrice(st.stock)>=(this.InvestamtFrom*10000);
-          //   })
-          // }
-          // if(this.InvestamtTo){
-          //   list=list.filter((st)=>{
-          //     return this.TradingPrice(st.stock)<=(this.InvestamtTo*10000);
-          //   })
-          // }
-          // this.Count= list.length
-          // return list;
+        //金額フィルター
+        if(this.InvestamtFrom){
+          list=list.filter((st)=>{
+            return this.TradingPrice(st)>=(this.InvestamtFrom*10000);
+          })
+        }
+        if(this.InvestamtTo){
+          list=list.filter((st)=>{
+            return this.TradingPrice(st)<=(this.InvestamtTo*10000);
+          })
+        }
+        // this.Count= list.length
+        // return list;
+        return list.sort((a,b)=>parseFloat(b.growth_per)-parseFloat(a.growth_per));
       },
       ActiveFlags(stock){
         return Object.keys(stock.flags).filter((k)=>stock.flags[k]);
       },
       TradingPrice(stock){
-        return parseFloat(stock.close_price)*parseFloat(stock.trading_unit);
+        return parseFloat(stock.price)*parseFloat(stock.trading_unit);
       }
     }
 });
