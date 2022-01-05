@@ -444,7 +444,10 @@ class sbi_client(web_client):
             for idx, row in enumerate(rows):
 
                 cols=row.find_elements_by_tag_name('td')
+                if len(cols[1].text.split('\n'))<2:
+                    continue
                 rec=sbi_models.GrowthRecord()
+
                 rec.stock_name=cols[1].text.split('\n')[0]
                 rec.stock_code=cols[1].text.split('\n')[1]
                 rec.market=market

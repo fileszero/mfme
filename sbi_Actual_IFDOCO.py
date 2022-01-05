@@ -44,10 +44,15 @@ while True:
             continue
         quantity=0
         # special logics
-        if(code in ["1360","2516"]):    #日経平均ベア２倍上場投信, 東証マザーズＥＴＦ
+        if(code in ["1360"]):    #日経平均ベア２倍上場投信
+            quantity=200
+        elif(code in ["2516"]):    #東証マザーズＥＴＦ
             quantity=100
+        elif(code in ["1306"]):    #ＮＥＸＴ　ＦＵＮＤＳ　ＴＯＰＩＸ連動型上場投信
+            quantity=50
 
-        sbi.ActualBuyingIFDOCO(stockCode=code,quantity=quantity, profit=0.007,losscut=0.03,GyakuSashine=2)
+
+        sbi.ActualBuyingIFDOCO(stockCode=code,quantity=quantity, profit=0.007,losscut=0.015,GyakuSashine=2)
     except Exception as e:
         print(e)
 

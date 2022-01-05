@@ -24,7 +24,7 @@ from sklearn import linear_model
 
 
 def updateIncomeOutgo(mfme: mfme_client, conn: sqlite3.Connection):
-    mfme.updateLatestCSV()
+    mfme.updateLatestCSV(12)
     cur = conn.cursor()
     cur.execute(
         """CREATE TABLE IF NOT EXISTS IncomeOutgo (
@@ -46,6 +46,11 @@ def updateIncomeOutgo(mfme: mfme_client, conn: sqlite3.Connection):
         print(f)
         df = pd.read_csv(f, encoding="cp932")
         df.to_sql("import_work", conn, if_exists="replace")
+        delete_sql = """
+        DELETE FROM IncomeOutgo WHERE MFId IN (SELECT "ID" FROM import_work)
+        """
+        cur.execute(delete_sql)
+
         insetrt_sql = """
         INSERT INTO IncomeOutgo(IsTarget,Date,Detail,Amount,Account,Class1,Class2,Memo,IsTransfer,MFId)
         SELECT "計算対象","日付","内容","金額（円）","保有金融機関","大項目","中項目","メモ","振替","ID"
@@ -105,8 +110,9 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     sql = ("select * from IncomeOutgo "
            + "WHERE IsTarget=1 AND IsTransfer=0 AND Date>='" +
            datefrom.strftime("%Y/%m/%d") + "'"
-           + "And Account in (" + account_list + ")")
-    # print(sql)
+           + "And Class1 in ('食費','日用品')")
+        #    + "And Account in (" + account_list + ")")
+    print(sql)
     df = pd.read_sql(sql, conn)
 
     # https: // note.nkmk.me/python-pandas-datetime-timestamp/
@@ -138,13 +144,12 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     last_one_year_mean = last_one_year.groupby(
         ['Year', 'Month']).sum()["Amount"].mean()
 
-    msg = "subject: 家計のご報告\n"
-    msg += fdate(date.today())+"\n\n"
-    msg += '今月の確定額は {:>9,.0f} 円 です。\n\n'.format(abs(thismonth_sum))
-    msg += '今月の予想額は {:>9,.0f} 円 です。\n'.format(abs(thismonth_expect))
-    msg += '先月の確定額は {:>9,.0f} 円 でした。\n'.format(abs(lastmonth_sum))
-    msg += '１年間の平均は {:>9,.0f} 円/月 です。\n'.format(abs(last_one_year_mean))
-
+    msg = "subject: 食費と日用品費のご報告\n"
+    msg += fdate(date.today())+"時点の食費と日用品費の使用状況です。\n\n"
+    msg += f'今月({basedate.month:>2}月)の確定額は {abs(thismonth_sum):>9,.0f} 円 です。\n'
+    msg += f'先月({start_of_lastmonth.month:>2}月)の確定額は {abs(lastmonth_sum):>9,.0f} 円 でした。\n\n'
+    msg += f'１年間の平均は       {abs(last_one_year_mean):>9,.0f} 円/月 です。\n'
+    msg += f'今月({basedate.month:>2}月)の予想額は {abs(thismonth_expect):>9,.0f} 円 です。\n'
     # 資産推移
     sql = ("select Min(Date) as datefrom from BSHistory where total=(select max(total) from BSHistory)")
     df = pd.read_sql(sql, conn)
@@ -225,9 +230,9 @@ if len(sys.argv) >= 2:
             me_config["slack"]["channel"]=arg
 
 conn = sqlite3.connect(me_config["dbfile"])
-updateIncomeOutgo(mfme, conn)
-updateBSHistory(mfme, conn)
+# updateIncomeOutgo(mfme, conn)
+# updateBSHistory(mfme, conn)
 msg = makeReportMessage(conn)
 print(msg)
-sendSlackMessage(msg)
+# sendSlackMessage(msg)
 conn.close()
