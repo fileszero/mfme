@@ -230,9 +230,9 @@ if len(sys.argv) >= 2:
             me_config["slack"]["channel"]=arg
 
 conn = sqlite3.connect(me_config["dbfile"])
-# updateIncomeOutgo(mfme, conn)
-# updateBSHistory(mfme, conn)
+updateIncomeOutgo(mfme, conn)
+updateBSHistory(mfme, conn)
 msg = makeReportMessage(conn)
 print(msg)
-# sendSlackMessage(msg)
+sendSlackMessage(msg)
 conn.close()
