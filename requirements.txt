@@ -23,3 +23,6 @@ beautifulsoup4
 
 ### Database
 mysqlclient
+
+### LINE
+line-bot-sdk

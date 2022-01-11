@@ -22,6 +22,12 @@ import pandas as pd  # pip install pandas
 import matplotlib.pyplot as plt
 from sklearn import linear_model
 
+from linebot import (
+ LineBotApi, WebhookHandler
+)
+from linebot.models import (
+    MessageEvent, TextMessage, TextSendMessage,
+)
 
 def updateIncomeOutgo(mfme: mfme_client, conn: sqlite3.Connection):
     mfme.updateLatestCSV(12)
@@ -210,6 +216,11 @@ def sendSlackMessage(msg: str):
         channel=me_config["slack"]["channel"],
         text=msg)
 
+def sendLINEMessage(msg: str):
+    ACCESS_TOKEN = me_config["LINE"]["token"]
+
+    line_bot_api = LineBotApi(ACCESS_TOKEN)
+    line_bot_api.broadcast(TextSendMessage(text=msg))
 
 me_config = mylib.get_config()
 
@@ -235,4 +246,5 @@ updateBSHistory(mfme, conn)
 msg = makeReportMessage(conn)
 print(msg)
 sendSlackMessage(msg)
+sendLINEMessage(msg)
 conn.close()
