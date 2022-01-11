@@ -12,4 +12,8 @@ ACCESS_TOKEN = config["LINE"]["token"]
 SECRET = config["LINE"]["channel_secret"]
 
 line_bot_api = LineBotApi(ACCESS_TOKEN)
-line_bot_api.broadcast(TextSendMessage(text='Hello World!'))
+if("users" in config["LINE"]):
+    users = config["LINE"]["users"]
+    line_bot_api.multicast(users,TextSendMessage(text='Hello World!'))
+else:
+    line_bot_api.broadcast(TextSendMessage(text='Hello World!'))
