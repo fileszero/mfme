@@ -141,13 +141,13 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     lastmonth = df[(start_of_lastmonth <= df['Date'])
                    & (df['Date'] < basedate)]
     lastmonth_sum = lastmonth["Amount"].sum()
-    # print(lastmonth)
+    print(lastmonth)
 
     start_of_lastyear = basedate + relativedelta(years=-1)
     # print(start_of_lastyear)
     last_one_year = df[(start_of_lastyear <= df['Date'])
                        & (df['Date'] < basedate)]
-    print(last_one_year)
+    # print(last_one_year)
     last_one_year_mean = last_one_year.groupby(
         ['Year', 'Month'], as_index=False).sum()["Amount"].mean()
 
