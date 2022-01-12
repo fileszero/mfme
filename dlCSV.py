@@ -148,7 +148,7 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     last_one_year = df[(start_of_lastyear <= df['Date'])
                        & (df['Date'] < basedate)]
     last_one_year_mean = last_one_year.groupby(
-        ['Year', 'Month']).sum()["Amount"].mean()
+        ['Year', 'Month'], as_index=False).sum()["Amount"].mean()
 
     msg = "subject: 食費と日用品費のご報告\n"
     msg += fdate(date.today())+"時点の食費と日用品費の使用状況です。\n\n"
@@ -245,8 +245,8 @@ if len(sys.argv) >= 2:
             me_config["slack"]["channel"]=arg
 
 conn = sqlite3.connect(me_config["dbfile"])
-updateIncomeOutgo(mfme, conn)
-updateBSHistory(mfme, conn)
+# updateIncomeOutgo(mfme, conn)
+# updateBSHistory(mfme, conn)
 msg = makeReportMessage(conn)
 print(msg)
 sendSlackMessage(msg)
