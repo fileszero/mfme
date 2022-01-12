@@ -141,7 +141,7 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     lastmonth = df[(start_of_lastmonth <= df['Date'])
                    & (df['Date'] < basedate)]
     lastmonth_sum = lastmonth["Amount"].sum()
-    print(lastmonth)
+    # print(lastmonth)
 
     start_of_lastyear = basedate + relativedelta(years=-1)
     # print(start_of_lastyear)
