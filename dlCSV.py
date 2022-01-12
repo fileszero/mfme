@@ -147,6 +147,7 @@ def makeReportMessage(conn: sqlite3.Connection) -> str:
     # print(start_of_lastyear)
     last_one_year = df[(start_of_lastyear <= df['Date'])
                        & (df['Date'] < basedate)]
+    print(last_one_year)
     last_one_year_mean = last_one_year.groupby(
         ['Year', 'Month'], as_index=False).sum()["Amount"].mean()
 
@@ -249,6 +250,6 @@ conn = sqlite3.connect(me_config["dbfile"])
 # updateBSHistory(mfme, conn)
 msg = makeReportMessage(conn)
 print(msg)
-sendSlackMessage(msg)
-sendLINEMessage(msg)
+# sendSlackMessage(msg)
+# sendLINEMessage(msg)
 conn.close()
