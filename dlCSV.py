@@ -221,10 +221,17 @@ def sendLINEMessage(msg: str):
     ACCESS_TOKEN = me_config["LINE"]["token"]
 
     line_bot_api = LineBotApi(ACCESS_TOKEN)
+    sent=False
     if("users" in me_config["LINE"]):
         users = me_config["LINE"]["users"]
         line_bot_api.multicast(users,TextSendMessage(text=msg))
-    else:
+        sent=True
+    if("group" in me_config["LINE"]):
+        group = me_config["LINE"]["group"]
+        line_bot_api.push_message(group,TextSendMessage(text=msg ))
+        sent=True
+
+    if not sent:
         line_bot_api.broadcast(TextSendMessage(text=msg))
 
 me_config = mylib.get_config()
