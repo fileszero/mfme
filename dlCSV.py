@@ -32,7 +32,7 @@ from linebot.models import (
 )
 
 def updateIncomeOutgo(mfme: mfme_client, conn: sqlite3.Connection):
-    mfme.updateLatestCSV(3)
+    mfme.updateLatestCSV(6)
     cur = conn.cursor()
     cur.execute(
         """CREATE TABLE IF NOT EXISTS IncomeOutgo (
