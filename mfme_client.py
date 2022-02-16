@@ -128,11 +128,18 @@ class mfme_client(web_client):
         try:
             self.login()
             basedate = datetime.datetime.now().replace(day=1)
+            # 家計簿
+            self.browser().get("https://moneyforward.com/cf")
+            # self.clickByXPath("//span[contains(@class,'fc-button-today')][contains(text(), '今月')]")
             for m in range(months):
-                curdate = basedate + relativedelta(months=-m)
-                print(curdate)
-                self.gotoYearMonth(curdate.year, curdate.month)
+                # curdate = basedate + relativedelta(months=-m)
+                # print(curdate)
+                # self.gotoYearMonth(curdate.year, curdate.month)
                 self.downloadCSV()
+                self.clickByXPath("//span[contains(@class,'fc-button-prev')][contains(., '◄')]")
+                self.browser().implicitly_wait(1)
+                WebDriverWait(self.browser(), 30).until_not(EC.presence_of_element_located(
+                    (By.XPATH, "//h2[contains(text(), 'Loading...')]")))
                 # getCSV(curdate.year, curdate.month)
         except:
             if self._browser:

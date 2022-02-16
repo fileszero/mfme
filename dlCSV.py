@@ -7,6 +7,8 @@ import json
 import slack
 import sys
 
+import uuid
+
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
@@ -30,7 +32,7 @@ from linebot.models import (
 )
 
 def updateIncomeOutgo(mfme: mfme_client, conn: sqlite3.Connection):
-    mfme.updateLatestCSV(12)
+    mfme.updateLatestCSV(3)
     cur = conn.cursor()
     cur.execute(
         """CREATE TABLE IF NOT EXISTS IncomeOutgo (
@@ -53,7 +55,7 @@ def updateIncomeOutgo(mfme: mfme_client, conn: sqlite3.Connection):
         df = pd.read_csv(f, encoding="cp932")
         df.to_sql("import_work", conn, if_exists="replace")
         delete_sql = """
-        DELETE FROM IncomeOutgo WHERE MFId IN (SELECT "ID" FROM import_work)
+        DELETE FROM IncomeOutgo WHERE MFId IN (SELECT "ID" FROM import_work) OR Date IN (SELECT "日付" FROM import_work)
         """
         cur.execute(delete_sql)
 
