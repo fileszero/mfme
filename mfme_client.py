@@ -2,11 +2,13 @@
 
 # https://selenium.dev/documentation/en/webdriver/driver_requirements/#firefox
 # Simple assignment
+from multiprocessing import Array
 import os
 import json
 import datetime
 import re
 import time
+from tokenize import String
 from dateutil.relativedelta import relativedelta
 import mylib
 
@@ -216,6 +218,14 @@ class mfme_client(web_client):
             self.clickByXPath("//input[@type='button' and @id='confirmation-button']")  #続けて入力する
 
         self.clickByXPath("//div[@class='close' and @type='button' and @data-dismiss='modal']")
+
+    def requery_account(self, account_ids:List[str]):
+        self.login()
+        self.browser().get("https://moneyforward.com/accounts")
+        for account_id in account_ids:
+            self.clickByXPath(f"//*[@id='js-recorrect-form-{account_id}']/input")
+            time.sleep(2)
+
 
 
 if __name__ == '__main__':

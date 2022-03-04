@@ -1,0 +1,8 @@
+{
+    "mfme": {
+        "mail": "mail@address.com",
+        "password": "password",
+        "group":"Group Name",
+        "accounts":["accountID1","accountID2..."]
+    }
+}
