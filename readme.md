@@ -81,7 +81,11 @@ pip3 install slackclient
 15 9 * * 0,2,3,4,6 user LC_CTYPE="C.UTF-8" /usr/local/bin/python3.8 /home/user/apps/mfme/dlCSV.py "#random"
 
 ```
-
+###  /etc/aliases
+```
+withdrawal: "|(cd /home/user/apps/slackMail; LC_CTYPE='C.UTF-8' HOME=/home/user /usr/local/bin/python3.8 dispatch.py)" ,
+            "|(cd /home/user/apps/mfme; LC_CTYPE='C.UTF-8' HOME=/home/user /usr/local/bin/python3.8 mfme_account_requery.py)"
+```
 ### deploy
 ```
 cd appfolder
