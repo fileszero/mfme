@@ -223,7 +223,10 @@ class mfme_client(web_client):
         self.login()
         self.browser().get("https://moneyforward.com/accounts")
         for account_id in account_ids:
-            self.clickByXPath(f"//*[@id='js-recorrect-form-{account_id}']/input")
+            try:
+                self.clickByXPath(f"//*[@id='js-recorrect-form-{account_id}']/input")
+            except Exception as e:
+                print(e)
             time.sleep(2)
 
 
