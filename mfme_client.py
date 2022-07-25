@@ -51,41 +51,49 @@ class mfme_client(web_client):
         super().__del__()
 
     def login(self):
-        self.browser().get("https://moneyforward.com/")
-        # self.browser().get("https://id.moneyforward.com/sign_in/email")
-        # already_login = self.browser().find_elements_by_xpath(
-        #     "//div[contains(@class,'alert-success')][contains(text(), '既にログインしています')]")
-        already_login = self.browser().find_elements_by_xpath("//a[@href='/sign_out']")
-        if len(already_login) != 0:
-            return
-        # メールでログインに移動
-        self.clickByXPath("//a[@href='/sign_in']")
-        self.clickByXPath("//a[contains(@href, '/sign_in/email')]")
+        retry=10
+        while retry>0:
+            try:
+                self.browser().get("https://moneyforward.com/")
+                # self.browser().get("https://id.moneyforward.com/sign_in/email")
+                # already_login = self.browser().find_elements_by_xpath(
+                #     "//div[contains(@class,'alert-success')][contains(text(), '既にログインしています')]")
+                already_login = self.browser().find_elements_by_xpath("//a[@href='/sign_out']")
+                if len(already_login) != 0:
+                    return
+                # メールでログインに移動
+                self.clickByXPath("//a[@href='/sign_in']")
+                self.clickByXPath("//a[contains(@href, '/sign_in/email')]")
 
-        # メールアドレスを入力
-        e = self.browser().find_element_by_xpath("//input[@name='mfid_user[email]']")
-        #e = self.browser().find_element_by_id("sign_in_session_service_email")
-        e.clear()
-        e.send_keys(self.email)
-        self.clickByXPath("//input[@type='submit']")
-        # パスワードを入力
-        e = self.browser().find_element_by_xpath("//input[@name='mfid_user[password]']")
-        # e = self.browser().find_element_by_id("sign_in_session_service_password")
-        e.clear()
-        e.send_keys(self.password)
-        # ログインボタンを押す
-        self.clickByXPath("//input[@type='submit']")
-        self.browser().get("https://moneyforward.com/")
+                # メールアドレスを入力
+                e = self.browser().find_element_by_xpath("//input[@name='mfid_user[email]']")
+                #e = self.browser().find_element_by_id("sign_in_session_service_email")
+                e.clear()
+                e.send_keys(self.email)
+                self.clickByXPath("//input[@type='submit']")
+                # パスワードを入力
+                e = self.browser().find_element_by_xpath("//input[@name='mfid_user[password]']")
+                # e = self.browser().find_element_by_id("sign_in_session_service_password")
+                e.clear()
+                e.send_keys(self.password)
+                # ログインボタンを押す
+                self.clickByXPath("//input[@type='submit']")
+                self.browser().get("https://moneyforward.com/")
 
-        # 待機
-        already_login = self.browser().find_elements_by_xpath("//a[@href='/users/sign_out']")
+                # 待機
+                already_login = self.browser().find_elements_by_xpath("//a[@href='/users/sign_out']")
 
-        # frm = self.browser().find_element_by_name("commit")
-        # frm.click()
-        #グループ変更
-        e = self.browser().find_element_by_xpath('//*[@id="group_id_hash"]')
-        select=Select(e)
-        select.select_by_visible_text( self._group_name )
+                # frm = self.browser().find_element_by_name("commit")
+                # frm.click()
+                #グループ変更
+                e = self.browser().find_element_by_xpath('//*[@id="group_id_hash"]')
+                select=Select(e)
+                select.select_by_visible_text( self._group_name )
+                retry=-1
+            except Exception as e:
+                retry -= 1
+                print("login error")
+                print(e)
 
     def chnageGroup(self,groupName:str):
         # Home
