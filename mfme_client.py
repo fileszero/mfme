@@ -90,6 +90,7 @@ class mfme_client(web_client):
                 select=Select(e)
                 select.select_by_visible_text( self._group_name )
                 retry=-1
+                print("login success")
             except Exception as e:
                 retry -= 1
                 print("login error")
