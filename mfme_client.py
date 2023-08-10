@@ -70,14 +70,17 @@ class mfme_client(web_client):
                 #e = self.browser().find_element_by_id("sign_in_session_service_email")
                 e.clear()
                 e.send_keys(self.email)
-                self.clickByXPath("//input[@type='submit']")
+                # self.clickByXPath("//input[@type='submit']")
+                self.clickByXPath("//*[@id='submitto']")
+
                 # パスワードを入力
                 e = self.browser().find_element_by_xpath("//input[@name='mfid_user[password]']")
                 # e = self.browser().find_element_by_id("sign_in_session_service_password")
                 e.clear()
                 e.send_keys(self.password)
                 # ログインボタンを押す
-                self.clickByXPath("//input[@type='submit']")
+                # self.clickByXPath("//input[@type='submit']")
+                self.clickByXPath("//*[@id='submitto']")
                 self.browser().get("https://moneyforward.com/")
 
                 # 待機
