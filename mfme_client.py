@@ -63,7 +63,7 @@ class mfme_client(web_client):
                     return
                 # メールでログインに移動
                 self.clickByXPath("//a[@href='/sign_in']")
-                self.clickByXPath("//a[contains(@href, '/sign_in/email')]")
+                # self.clickByXPath("//a[contains(@href, '/sign_in/email')]")
 
                 # メールアドレスを入力
                 e = self.browser().find_element_by_xpath("//input[@name='mfid_user[email]']")
